@@ -15,9 +15,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-        env:
-          URL: ${{ secrets.URL }}
-          PASSWORD: ${{ secrets.PASSWORD }}
       - run: yarn
       - run: node node_modules/puppeteer/install.js
       - run: yarn start
+        env:
+          URL: ${{ secrets.URL }}
+          PASSWORD: ${{ secrets.PASSWORD }}
