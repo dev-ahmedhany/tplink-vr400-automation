@@ -14,7 +14,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   }
   const timeToDelay = 1000;
 
-  const browser = await puppeteer.launch({headless: "new"});
+  const browser = await puppeteer.launch({headless: "new",args: ['--no-sandbox']});
   const page = await browser.newPage();
   await page.setViewport({
     width: 1024,
@@ -25,27 +25,18 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 
   const buttonClick = async (selector,previous) => {
-    try {
       await page.waitForSelector(selector);
       await delay(timeToDelay);
       await page.click(selector);
-    } catch (error) {
-      try {
-        await previous()
-        await page.waitForSelector(selector);
-        await delay(timeToDelay);
-        await page.click(selector);
-      } catch (error) {
-        console.error("error",error);
-      }
-    }
   }
 
   try {
     await page.waitForSelector(selectors.passwordField);
     await delay(timeToDelay);
     await page.type(selectors.passwordField, process.env.PASSWORD,{delay: 100});
-    await buttonClick(selectors.loginButton);
+    await buttonClick(selectors.loginButton, async () => {
+    }
+      );
     try {
       await buttonClick(selectors.confirmButton);
     } catch (error) {
