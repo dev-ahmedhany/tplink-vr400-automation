@@ -20,7 +20,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const buttonClick = async (selector) => {
     await page.waitForSelector(selector);
-    await delay(500);
+    await delay(2000);
     await page.click(selector);
   }
 
@@ -47,8 +47,11 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         return Array.from(columns, column => column.innerText);
       });
     });
-    
-    console.log("done");
+    const finalResult = {}
+    result.filter((i)=>i.length === 5).map((item) => {
+      finalResult[item[1]] = item[4]
+    })
+    console.log(JSON.stringify(finalResult));
   } catch (error) {
     console.log("error",error);
   }
