@@ -25,11 +25,12 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     height: 1024,
     deviceScaleFactor: 1,
   });
+  page.setDefaultTimeout(60000)
   await page.goto(process.env.URL);
 
 
   const buttonClick = async (selector,previous) => {
-      await page.waitForSelector(selector);
+      await page.waitForSelector(selector,{visible:true});
       await delay(timeToDelay);
       await page.click(selector);
   }
@@ -38,9 +39,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.waitForSelector(selectors.passwordField);
     await delay(timeToDelay);
     await page.type(selectors.passwordField, process.env.PASSWORD,{delay: 100});
-    await buttonClick(selectors.loginButton, async () => {
-    }
-      );
+    await buttonClick(selectors.loginButton, async () => {});
     try {
       await buttonClick(selectors.confirmButton);
     } catch (error) {
