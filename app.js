@@ -24,8 +24,9 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const browser = await puppeteer.launch({
     args: ['--no-sandbox'],
+    ignoreHTTPSErrors: true,
     executablePath: process.env.PUPPETEER_EXEC_PATH, // set by docker container
-    headless: false,
+    headless: "new",
   });
   const page = await browser.newPage();
   await page.setViewport({
@@ -39,8 +40,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const buttonClick = async (selector,previous) => {
       await page.waitForSelector(selector,{visible:true});
       await delay(timeToDelay);
-    await page.focus(selector )
-    await page.keyboard.type('\n');
+      await page.click(selector);
   }
 
   try {
@@ -53,18 +53,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     } catch (error) {
       console.log("no confirm", error);
     }
-    await buttonClick(selectors.advancedButton , async () => {
-      await page.waitForSelector(selectors.passwordField);
-        await delay(timeToDelay);
-        await page.type(selectors.passwordField, process.env.PASSWORD,{delay: 100});
-        await buttonClick(selectors.loginButton);
-        try {
-          await buttonClick(selectors.confirmButton);
-        } catch (error) {
-          console.log("no confirm", error);
-        }
-      }
-      );
+    await buttonClick(selectors.advancedButton);
     await buttonClick(selectors.button1, async () => {
       await buttonClick(selectors.advancedButton, () => {})})
 
