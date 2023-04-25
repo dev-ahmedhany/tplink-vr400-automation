@@ -9,5 +9,8 @@
   },
   "scripts": {
     "start": "node app.js"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.3"
   }
 }
