@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Run test
-        uses: tj-actions/puppeteer@v4
-        id: puppeteer
+      - name: Use Node. js ${{ matrix. node-version }}
+        uses: actions/setup-node@v3
         with:
-          files: |
-            app.js
+          node-version: S{{ matrix. node-version }]
+      - run: npm ci
+      - run: npm start
