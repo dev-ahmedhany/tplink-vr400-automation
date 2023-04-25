@@ -29,17 +29,13 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     headless: "new",
   });
   const page = await browser.newPage();
-  await page.setViewport({
-    width: 1024,
-    height: 1024,
-    deviceScaleFactor: 1,
-  });
   await page.goto(process.env.URL);
 
 
   const buttonClick = async (selector,previous) => {
       await page.waitForSelector(selector,{visible:true});
       await delay(timeToDelay);
+      await page.focus(selector);
       await page.click(selector);
   }
 
@@ -47,7 +43,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.waitForSelector(selectors.passwordField);
     await delay(timeToDelay);
     await page.type(selectors.passwordField, process.env.PASSWORD,{delay: 100});
-    await buttonClick(selectors.loginButton, async () => {});
+    await buttonClick(selectors.loginButton);
     try {
       await buttonClick(selectors.confirmButton);
     } catch (error) {
