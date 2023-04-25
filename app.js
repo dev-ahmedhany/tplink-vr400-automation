@@ -33,16 +33,14 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     height: 1024,
     deviceScaleFactor: 1,
   });
-  page.setDefaultTimeout(60000)
   await page.goto(process.env.URL);
 
 
   const buttonClick = async (selector,previous) => {
       await page.waitForSelector(selector,{visible:true});
       await delay(timeToDelay);
-      await page.evaluate((s) => {
-        document.querySelector(s).click();
-    },selector);
+    await page.focus(selector )
+    await page.keyboard.type('\n');
   }
 
   try {
