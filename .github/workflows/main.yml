@@ -18,11 +18,11 @@ jobs:
       - run: yarn
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
-          URL: ${{ secrets.URL }}
-          PASSWORD: ${{ secrets.PASSWORD }}
       - name: Test Code
         uses: mujo-code/puppeteer-headful@16.6.0
         env:
           CI: "true"
+          URL: ${{ secrets.URL }}
+          PASSWORD: ${{ secrets.PASSWORD }}
         with:
           args: npm start
