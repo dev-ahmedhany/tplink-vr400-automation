@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 (async () => {
-  const browser = await puppeteer.launch({headless: false});
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto(process.env.URL);
   //set URL = https://
