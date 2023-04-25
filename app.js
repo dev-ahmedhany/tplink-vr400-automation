@@ -14,7 +14,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   }
   const timeToDelay = 1000;
 
-  const browser = await puppeteer.launch({headless: "new",args: ['--no-sandbox']});
+  const browser = await puppeteer.launch({headless: false,args: ['--no-sandbox']});
   const page = await browser.newPage();
   await page.setViewport({
     width: 1024,
