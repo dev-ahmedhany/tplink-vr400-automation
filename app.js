@@ -45,7 +45,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     });
   });
 
-  console.log(result);
+  console.log("done");
 
   await browser.close();
 })();
