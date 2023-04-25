@@ -1,0 +1,19 @@
+name: main
+on: 
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Who to greet"
+        default: "World"
+jobs:
+  installDependencies:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run test
+        uses: tj-actions/puppeteer@v4
+        id: puppeteer
+        with:
+          files: |
+            app.js
