@@ -6,10 +6,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   
-  console.log("url",process.env.URL);
-  
   await page.goto(process.env.URL);
-  //set URL = https://
 
   await page.type("#pc-login-password", process.env.PASSWORD);
 
