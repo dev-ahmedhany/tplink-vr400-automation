@@ -20,8 +20,8 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const buttonClick = async (selector) => {
     await page.waitForSelector(selector);
-    await delay(2000);
-    await page.click(selector);
+    await delay(500);
+    await page.evaluate((btnSelector) => {document.querySelector(btnSelector).click();}, selector);
   }
 
   try {
