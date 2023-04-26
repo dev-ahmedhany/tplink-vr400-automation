@@ -34,6 +34,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     ],
   });
   const page = await browser.newPage();
+  await page.setViewport({ width: 1280, height: 720 });
   await page.goto(process.env.URL);
 
 
