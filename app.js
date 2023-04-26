@@ -29,7 +29,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const buttonClick = async (selector,previous) => {
       await page.waitForSelector(selector,{visible:true});
-      await page.waitFor(2000);
+      await delay(timeToDelay);
       await page.focus(selector);
       await page.click(selector);
   }
