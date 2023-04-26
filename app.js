@@ -19,9 +19,19 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const timeToDelay = 1000;
 
   const browser = await puppeteer.launch({
-    args: ['--no-sandbox'],
-    ignoreHTTPSErrors: true,
     headless: true,
+    timeout: 20000,
+    ignoreHTTPSErrors: true,
+    slowMo: 0,
+    args: [
+      '--disable-gpu',
+      '--disable-dev-shm-usage',
+      '--disable-setuid-sandbox',
+      '--no-first-run',
+      '--no-sandbox',
+      '--no-zygote',
+      '--window-size=1280,720',
+    ],
   });
   const page = await browser.newPage();
   await page.goto(process.env.URL);
