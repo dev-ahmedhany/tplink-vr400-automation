@@ -25,8 +25,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const browser = await puppeteer.launch({
     args: ['--no-sandbox'],
     ignoreHTTPSErrors: true,
-    executablePath: process.env.PUPPETEER_EXEC_PATH, // set by docker container
-    headless: "new",
+    headless: true,
   });
   const page = await browser.newPage();
   await page.goto(process.env.URL);
@@ -34,7 +33,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const buttonClick = async (selector,previous) => {
       await page.waitForSelector(selector,{visible:true});
-      await delay(timeToDelay);
+      await page.waitFor(2000);
       await page.focus(selector);
       await page.click(selector);
   }

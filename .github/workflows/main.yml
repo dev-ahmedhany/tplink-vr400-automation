@@ -15,14 +15,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn
+      - run: yarn && yarn start
         env:
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
-      - name: Test Code
-        uses: mujo-code/puppeteer-headful@16.6.0
-        env:
-          CI: "true"
           URL: ${{ secrets.URL }}
           PASSWORD: ${{ secrets.PASSWORD }}
-        with:
-          args: npm start
