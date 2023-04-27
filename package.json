@@ -5,9 +5,7 @@
   "main": "cron.js",
   "license": "MIT",
   "dependencies": {
-    "puppeteer": "18.2.1",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "puppeteer": "18.2.1"
   },
   "scripts": {
     "start": "node app.js"
