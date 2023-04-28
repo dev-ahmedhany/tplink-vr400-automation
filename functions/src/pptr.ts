@@ -67,9 +67,9 @@ export default async () => {
           (column:HTMLTableCellElement) => column.innerText);
     });
   });
-  const finalResult = {} as {[key:string]:string};
+  const finalResult = {} as {[key:string]:{usage:string, name:string}};
   result.filter((i)=>i.length === 5).map((item:string[]) => {
-    finalResult[item[1]] = item[4];
+    finalResult[item[2]] = {usage: item[4], name: item[1] || "null"};
   });
 
   await browser.close();
