@@ -11,7 +11,7 @@ import scrapeWebsite from "./pptr";
 exports.scrape = functions
     .runWith({
       timeoutSeconds: 120,
-      memory: "1GB",
+      memory: "512MB",
     })
     .region("europe-west1").firestore
     .document("/usage/{timestamp}")
