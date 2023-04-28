@@ -18,11 +18,13 @@ exports.scrape = functions
     .onCreate(async (change, context) => {
       let data;
       let fetched = false;
+      let err;
       try {
         data = await scrapeWebsite();
         fetched = true;
       } catch (error) {
         data = JSON.stringify(error);
+        err = error;
       }
       await db
           .collection("usage")
@@ -32,6 +34,9 @@ exports.scrape = functions
             fetchedAt: admin.firestore.FieldValue.serverTimestamp(),
             data,
           });
+      if (err) {
+        throw err;
+      }
     });
 
 exports.scrapingSchedule = functions.pubsub
