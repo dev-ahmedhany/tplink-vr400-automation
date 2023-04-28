@@ -40,7 +40,7 @@ exports.scrape = functions
     });
 
 exports.scrapingSchedule = functions.pubsub
-    .schedule("0 * * * *")
+    .schedule("*/30 * * * *")
     .timeZone("Africa/Cairo")
     .onRun(async () => {
       const time = (new Date()).getTime().toFixed(0);
