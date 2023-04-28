@@ -16,25 +16,25 @@ exports.scrape = functions
     .region("europe-west1").firestore
     .document("/usage/{timestamp}")
     .onCreate(async (change, context) => {
-      let data;
-      let fetched = false;
-      let err;
       try {
-        data = await scrapeWebsite();
-        fetched = true;
-      } catch (error) {
-        data = JSON.stringify(error);
-        err = error;
-      }
-      await db
-          .collection("usage")
-          .doc(context.params.timestamp)
-          .update({
-            fetched,
-            fetchedAt: admin.firestore.FieldValue.serverTimestamp(),
-            data,
-          });
-      if (err) {
+        const data = await scrapeWebsite();
+        await db
+            .collection("usage")
+            .doc(context.params.timestamp)
+            .update({
+              fetchedStatus: "success",
+              fetchedAt: admin.firestore.FieldValue.serverTimestamp(),
+              data,
+            });
+      } catch (err) {
+        await db
+            .collection("usage")
+            .doc(context.params.timestamp)
+            .update({
+              fetchedStatus: "error",
+              fetchedAt: admin.firestore.FieldValue.serverTimestamp(),
+              error: JSON.stringify(err),
+            });
         throw err;
       }
     });
@@ -48,7 +48,7 @@ exports.scrapingSchedule = functions.pubsub
           .collection("usage")
           .doc(time)
           .create({
-            fetched: false,
+            fetchedStatus: "pending",
             startedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
       return null;
