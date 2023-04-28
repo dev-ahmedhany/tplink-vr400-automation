@@ -15,7 +15,6 @@ export default async () => {
 
   const browser = await puppeteer.launch({
     headless: true,
-    timeout: 20000,
     ignoreHTTPSErrors: true,
     slowMo: 0,
     args: [
@@ -30,11 +29,13 @@ export default async () => {
   });
   const page = await browser.newPage();
   await page.setViewport({width: 1024, height: 1024});
-  await page.goto(process.env.URL as string);
+  const url = process.env.URL as string;
+  if (!url) throw new Error("URL is not defined");
+  await page.goto(url);
 
 
   const buttonClick = async (selector:string) => {
-    await page.waitForSelector(selector, {visible: true});
+    await page.waitForSelector(selector);
     await delay(timeToDelay);
     await page.focus(selector);
     await page.click(selector);

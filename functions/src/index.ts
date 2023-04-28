@@ -11,17 +11,24 @@ import scrapeWebsite from "./pptr";
 exports.scrape = functions
     .runWith({
       timeoutSeconds: 120,
-      memory: "512MB" || "2GB",
+      memory: "2GB",
     })
     .region("europe-west1").firestore
     .document("/usage/{timestamp}")
     .onCreate(async (change, context) => {
-      const data = await scrapeWebsite();
+      let data;
+      let fetched = false;
+      try {
+        data = await scrapeWebsite();
+        fetched = true;
+      } catch (error) {
+        data = JSON.stringify(error);
+      }
       await db
           .collection("usage")
           .doc(context.params.timestamp)
           .update({
-            fetched: true,
+            fetched,
             fetchedAt: admin.firestore.FieldValue.serverTimestamp(),
             data,
           });
