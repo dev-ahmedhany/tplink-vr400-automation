@@ -10,7 +10,7 @@ import scrapeWebsite from "./pptr";
 
 exports.scrape = functions
     .runWith({
-      timeoutSeconds: 120,
+      timeoutSeconds: 80,
       memory: "512MB",
     })
     .region("europe-west1").firestore
@@ -39,8 +39,9 @@ exports.scrape = functions
       }
     });
 
-exports.scrapingSchedule = functions.pubsub
-    .schedule("*/30 * * * *")
+exports.scrapingSchedule = functions.
+    region("europe-west1").pubsub
+    .schedule("0 * * * *")
     .timeZone("Africa/Cairo")
     .onRun(async () => {
       const time = (new Date()).getTime().toFixed(0);

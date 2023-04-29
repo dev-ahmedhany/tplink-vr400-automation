@@ -11,7 +11,7 @@ export default async () => {
     button1: "#menuTree > li:nth-child(12) > a",
     button2: "#menuTree > li:nth-child(12) > ul > li:nth-child(7) > a",
   };
-  const timeToDelay = 1000;
+  const timeToDelay = 100;
 
   const browser = await puppeteer.launch({
     headless: true,
