@@ -30,11 +30,7 @@ exports.scrape = functions
         await db
             .collection("usage")
             .doc(context.params.timestamp)
-            .update({
-              fetchedStatus: "error",
-              fetchedAt: admin.firestore.FieldValue.serverTimestamp(),
-              error: JSON.stringify(err),
-            });
+            .delete();
         throw err;
       }
     });
