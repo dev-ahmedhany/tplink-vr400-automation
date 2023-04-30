@@ -18,8 +18,8 @@ export default function Home({ csvData }: { csvData: string }) {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <div className={styles.center}>
-          <AreaChart csvData={csvData} />
         </div>
+          <AreaChart csvData={csvData} />
       </main>
     </>
   );
