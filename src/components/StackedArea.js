@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
-const AreaChart = () => {
+const AreaChart = ({csvData}) => {
   const svgRef = useRef(null);
   
   useEffect(() => {
@@ -18,9 +18,7 @@ const AreaChart = () => {
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     // Parse the Data
-    d3.csv(
-      "https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/5_OneCatSevNumOrdered_wide.csv"
-    ).then(function (data) {
+    const data = d3.csvParse(csvData);
       //////////
       // GENERAL //
       //////////
@@ -190,8 +188,7 @@ const AreaChart = () => {
         .on("mouseover", highlight)
         .on("mouseleave", noHighlight)
   
-  })
-  }, []);
+  }, [csvData]);
 
   return <div ref={svgRef}></div>;
 };
