@@ -10,8 +10,9 @@ export default async () => {
     advancedButton: "#advanced",
     button1: "#menuTree > li:nth-child(12) > a",
     button2: "#menuTree > li:nth-child(12) > ul > li:nth-child(7) > a",
+    buttonReset: "#resetAll",
+    buttonLogout: "#topLogout",
   };
-  const timeToDelay = 1000;
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -34,7 +35,7 @@ export default async () => {
   await page.goto(url);
 
 
-  const buttonClick = async (selector:string) => {
+  const buttonClick = async (selector:string, timeToDelay:number) => {
     await page.waitForSelector(selector);
     await delay(timeToDelay);
     await page.focus(selector);
@@ -43,19 +44,19 @@ export default async () => {
 
 
   await page.waitForSelector(selectors.passwordField);
-  await delay(timeToDelay);
+  await delay(1000);
   await page.type(selectors.passwordField, process.env.PASSWORD as string,
       {delay: 100});
-  await buttonClick(selectors.loginButton);
+  await buttonClick(selectors.loginButton, 100);
   try {
-    await buttonClick(selectors.confirmButton);
+    await buttonClick(selectors.confirmButton, 100);
   } catch (error) {
     console.log("no confirm", error);
   }
-  await buttonClick(selectors.advancedButton);
-  await buttonClick(selectors.button1);
+  await buttonClick(selectors.advancedButton, 1000);
+  await buttonClick(selectors.button1, 1000);
 
-  await buttonClick(selectors.button2);
+  await buttonClick(selectors.button2, 1000);
 
   await page.waitForSelector("#traffic-stat > tbody > tr:nth-child(1)");
 
@@ -71,6 +72,13 @@ export default async () => {
   result.filter((i)=>i.length === 5).map((item:string[]) => {
     finalResult[item[2]] = {usage: item[4], name: item[1] || "null"};
   });
+
+  await buttonClick(selectors.buttonReset, 100);
+  try {
+    await buttonClick(selectors.buttonLogout, 100);
+  } catch (error) {
+    console.log("no reset", error);
+  }
 
   await browser.close();
 

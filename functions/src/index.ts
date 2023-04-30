@@ -22,8 +22,7 @@ exports.scrape = functions
             .collection("usage")
             .doc(context.params.timestamp)
             .update({
-              fetchedStatus: "success",
-              fetchedAt: admin.firestore.FieldValue.serverTimestamp(),
+              endTime: admin.firestore.FieldValue.serverTimestamp(),
               data,
             });
       } catch (err) {
@@ -41,12 +40,20 @@ exports.scrapingSchedule = functions.
     .timeZone("Africa/Cairo")
     .onRun(async () => {
       const time = (new Date()).getTime().toFixed(0);
+      const lastDoc = await db.collection("usage").
+          orderBy("endTime").limitToLast(1).get();
+      let startTime = admin.firestore.FieldValue.serverTimestamp();
+      if (!lastDoc.empty) {
+        if (lastDoc.docs[0].data().endTime) {
+          startTime = lastDoc.docs[0].data().endTime;
+        }
+      }
+
       await db
           .collection("usage")
           .doc(time)
           .create({
-            fetchedStatus: "pending",
-            startedAt: admin.firestore.FieldValue.serverTimestamp(),
+            startTime,
           });
       return null;
     });
