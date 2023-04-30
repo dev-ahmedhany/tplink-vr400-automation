@@ -1,16 +1,26 @@
 {
-  "name": "node-workers-example",
-  "version": "1.0.0",
-  "description": "",
-  "main": "cron.js",
-  "license": "MIT",
-  "dependencies": {
-    "puppeteer": "18.2.1"
-  },
+  "name": "tplink-usage",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "start": "node app.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "devDependencies": {
-    "dotenv": "^16.0.3"
+  "dependencies": {
+    "@types/node": "18.16.3",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.1",
+    "d3": "^7.8.4",
+    "eslint": "8.39.0",
+    "eslint-config-next": "13.3.2",
+    "next": "13.3.2",
+    "performance-now": "^2.1.0",
+    "react": "18.2.0",
+    "react-charts": "^2.0.0-beta.7",
+    "react-dom": "18.2.0",
+    "react-resizable": "^3.0.5",
+    "typescript": "5.0.4"
   }
 }
