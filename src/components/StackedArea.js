@@ -52,7 +52,8 @@ const AreaChart = ({csvData}) => {
         .attr("text-anchor", "end")
         .attr("x", width)
         .attr("y", height + 40)
-        .text("Time (year)");
+        .attr("fill","currentColor")
+        .text("Time (hour)");
 
       // Add Y axis label:
       svg
@@ -60,7 +61,8 @@ const AreaChart = ({csvData}) => {
         .attr("text-anchor", "end")
         .attr("x", 0)
         .attr("y", -20)
-        .text("# of baby born")
+        .attr("fill","currentColor")
+        .text("Usage (byte/min)")
         .attr("text-anchor", "start");
 
       // Add Y axis
