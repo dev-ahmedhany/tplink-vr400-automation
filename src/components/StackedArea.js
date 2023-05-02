@@ -39,7 +39,7 @@ const AreaChart = ({ csvData }) => {
     // Add X axis
     const x = d3
       .scaleLinear()
-      .domain(d3.extent(data, (d) => d.usage))
+      .domain(d3.extent(data, (d) => Number(d.usage)))
       .range([0, width]);
     const xAxis = svg
       .append("g")
@@ -62,11 +62,11 @@ const AreaChart = ({ csvData }) => {
       .attr("x", 0)
       .attr("y", -20)
       .attr("fill", "currentColor")
-      .text("Usage (byte/min)")
+      .text("Usage (MB/min)")
       .attr("text-anchor", "start");
 
     // Add Y axis
-    const y = d3.scaleLinear().domain([0, 40000]).range([height, 0]);
+    const y = d3.scaleLinear().domain([0, 50]).range([height, 0]);
     svg.append("g").call(d3.axisLeft(y).ticks(5));
 
     //////////
@@ -136,7 +136,7 @@ const AreaChart = ({ csvData }) => {
       // If no selection, back to initial coordinate. Otherwise, update X axis domain
       if (!extent) {
         if (!idleTimeout) return (idleTimeout = setTimeout(idled, 350)); // This allows to wait a little bit
-        x.domain(d3.extent(data, (d) => d.usage));
+        x.domain(d3.extent(data, (d) => Number(d.usage)));
       } else {
         x.domain([x.invert(extent[0]), x.invert(extent[1])]);
         areaChart.select(".brush").call(brush.move, null); // This remove the grey brush area as soon as the selection has been done
