@@ -33,7 +33,13 @@ export default function Home({
 
 export const getStaticProps = async () => {
   const db = getFirestore();
-  const snapshot = await db.collection("usage").orderBy("startTime").get();
+  const snapshotInfo = await db.collection("info").doc("latest").get();
+  if (!snapshotInfo.exists || !snapshotInfo.data()?.from) {
+    return { notFound: true };
+  }
+  const from = snapshotInfo.data()?.from;
+
+  const snapshot = await db.collection("usage").where("endTime",">=",from).orderBy("endTime").get();
   if (snapshot.empty) {
     return { notFound: true };
   }
@@ -46,7 +52,7 @@ export const getStaticProps = async () => {
     const docData = doc.data();
     if (docData.data) {
       Object.keys(docData.data).forEach((key: any) => {
-        if (!users[key] && docData.data[key].name) {
+        if (!users[key] && docData.data[key].name !== "null") {
           users[key] = docData.data[key].name;
           totals[key] = { usage: 0, name: docData.data[key].name };
         }
@@ -132,6 +138,6 @@ export const getStaticProps = async () => {
       csvData,
       total
     },
-    revalidate: 60 * 60, // 1 hour
+    revalidate: 5 * 60, // 5 minutes
   };
 };
