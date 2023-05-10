@@ -8,12 +8,13 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function Home({
   csvData,
-  total
+  total,
+  lastUpdated,
 }: {
   csvData: string;
   total: number;
+  lastUpdated: string;
 }) {
-
   return (
     <>
       <Head>
@@ -26,6 +27,8 @@ export default function Home({
         <div className={styles.center}></div>
         <AreaChart csvData={csvData} />
         Total usage : {Math.round(total / 1024 / 1024 / 1024)}GB
+        <br />
+        <>Last updated :{lastUpdated}</>
       </main>
     </>
   );
@@ -39,7 +42,11 @@ export const getStaticProps = async () => {
   }
   const from = snapshotInfo.data()?.from;
 
-  const snapshot = await db.collection("usage").where("endTime",">=",from).orderBy("endTime").get();
+  const snapshot = await db
+    .collection("usage")
+    .where("endTime", ">=", from)
+    .orderBy("endTime")
+    .get();
   if (snapshot.empty) {
     return { notFound: true };
   }
@@ -90,8 +97,11 @@ export const getStaticProps = async () => {
   }, 0);
 
   macList.forEach((mac: string) => {
-    const separator = users[mac].length < 10 ? "_".repeat(10-users[mac].length) : "";
-    csvData += `${users[mac].slice(0, 10)}_${separator}_${Math.round(totals[mac].usage / 1024 / 1024 / 1024)}GB,`;
+    const separator =
+      users[mac].length < 10 ? "_".repeat(10 - users[mac].length) : "";
+    csvData += `${users[mac].slice(0, 10)}_${separator}_${Math.round(
+      totals[mac].usage / 1024 / 1024 / 1024
+    )}GB,`;
   });
   csvData = csvData.slice(0, -1);
   csvData += "\n";
@@ -123,7 +133,8 @@ export const getStaticProps = async () => {
             usage = usage;
           }
           usage = Number(usage);
-          csvData += (Math.round((usage / 1024 / 1024) / (diff / 1000 / 60)) || 0) + ",";
+          csvData +=
+            (Math.round(usage / 1024 / 1024 / (diff / 1000 / 60)) || 0) + ",";
         } else {
           csvData += "0,";
         }
@@ -136,7 +147,8 @@ export const getStaticProps = async () => {
   return {
     props: {
       csvData,
-      total
+      total,
+      lastUpdated: new Date().toLocaleTimeString("en-EG"),
     },
     revalidate: 5 * 60, // 5 minutes
   };
