@@ -96,6 +96,8 @@ export const getStaticProps = async () => {
     return acc + totals[key].usage;
   }, 0);
 
+  macList.sort((a: string, b: string) =>  totals[a].usage > totals[b].usage ? -1 : 1);
+
   macList.forEach((mac: string) => {
     const separator =
       users[mac].length < 10 ? "_".repeat(10 - users[mac].length) : "";
