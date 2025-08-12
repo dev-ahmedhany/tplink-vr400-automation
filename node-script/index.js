@@ -21,7 +21,7 @@ async function scrapeWebsite() {
   };
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     ignoreHTTPSErrors: true,
     slowMo: 0,
     args: [

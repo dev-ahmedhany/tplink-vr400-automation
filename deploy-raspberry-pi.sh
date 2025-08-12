@@ -81,17 +81,15 @@ sudo apt-get install -y \
 PROJECT_DIR="$HOME/tplink-vr400-automation"
 if [ ! -d "$PROJECT_DIR" ]; then
     echo "❌ Project directory not found at $PROJECT_DIR"
-    echo "Please clone the repository first:"
-    echo "git clone https://github.com/dev-ahmedhany/tplink-vr400-automation.git $PROJECT_DIR"
-    exit 1
+    echo "cloning"
+    git clone https://github.com/dev-ahmedhany/tplink-vr400-automation.git $PROJECT_DIR
 fi
 
 cd "$PROJECT_DIR"
 
 # Install main project dependencies
 echo "📦 Installing main project dependencies..."
-npm install yarn -g
-yarn
+npm install --legacy-peer-deps
 
 # Build the Next.js frontend
 echo "🏗️  Building frontend..."
