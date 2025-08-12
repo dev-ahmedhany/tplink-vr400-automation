@@ -7,7 +7,7 @@ const AreaChart = ({ csvData }) => {
   useEffect(() => {
     const margin = { top: 60, right: 230, bottom: 50, left: 50 };
     const width = 660 - margin.left - margin.right;
-    const height = 500 - margin.top - margin.bottom;
+    const height = 660 - margin.top - margin.bottom;
     // append the svg object to the body of the page
     const svg = d3
       .select(svgRef.current)
@@ -25,6 +25,13 @@ const AreaChart = ({ csvData }) => {
 
     // List of groups = header of the csv files
     const keys = data.columns.slice(1);
+
+    // Normalize data by dividing all numeric values by 1000 for better visualization
+    data.forEach(d => {
+      keys.forEach(key => {
+        d[key] = +d[key] / 1000; // Convert to number and divide by 1000
+      });
+    });
 
     // color palette
     const color = d3.scaleOrdinal().domain(keys).range(d3.schemeSet2);
@@ -65,8 +72,11 @@ const AreaChart = ({ csvData }) => {
       .text("Usage (MB/min)")
       .attr("text-anchor", "start");
 
+    // Calculate max value for Y axis based on actual data
+    const maxValue = d3.max(stackedData, (d) => d3.max(d, (d) => d[1]));
+    
     // Add Y axis
-    const y = d3.scaleLinear().domain([0, 50]).range([height, 0]);
+    const y = d3.scaleLinear().domain([0, maxValue]).range([height, 0]);
     svg.append("g").call(d3.axisLeft(y).ticks(5));
 
     //////////
