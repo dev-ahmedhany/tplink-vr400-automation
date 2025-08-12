@@ -1,0 +1,32 @@
+{
+  "name": "tplink-vr400-scraper",
+  "version": "1.0.0",
+  "description": "Node.js script to scrape TP-Link VR400 router usage data",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "scrape": "node index.js",
+    "setup": "./setup.sh",
+    "server": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {
+    "puppeteer": "^18.2.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "node-cron": "^3.0.2"
+  },
+  "keywords": [
+    "tp-link",
+    "router",
+    "scraping",
+    "puppeteer",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT"
+}
