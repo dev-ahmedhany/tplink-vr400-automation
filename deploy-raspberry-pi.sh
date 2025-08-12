@@ -82,7 +82,7 @@ PROJECT_DIR="$HOME/tplink-vr400-automation"
 if [ ! -d "$PROJECT_DIR" ]; then
     echo "❌ Project directory not found at $PROJECT_DIR"
     echo "Please clone the repository first:"
-    echo "git clone <your-repo-url> $PROJECT_DIR"
+    echo "git clone https://github.com/dev-ahmedhany/tplink-vr400-automation.git $PROJECT_DIR"
     exit 1
 fi
 
