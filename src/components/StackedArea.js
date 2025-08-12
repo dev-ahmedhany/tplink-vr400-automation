@@ -43,10 +43,13 @@ const AreaChart = ({ csvData }) => {
     // AXIS //
     //////////
 
+    // Calculate max value for X axis based on actual data indices (time)
+    const maxXValue = data.length - 1;
+    
     // Add X axis
     const x = d3
       .scaleLinear()
-      .domain(d3.extent(data, (d) => Number(d.usage)))
+      .domain([0, maxXValue])
       .range([0, width]);
     const xAxis = svg
       .append("g")
@@ -109,8 +112,8 @@ const AreaChart = ({ csvData }) => {
     // Area generator
     const area = d3
       .area()
-      .x(function (d) {
-        return x(d.data.usage);
+      .x(function (d, i) {
+        return x(i);
       })
       .y0(function (d) {
         return y(d[0]);
@@ -146,7 +149,7 @@ const AreaChart = ({ csvData }) => {
       // If no selection, back to initial coordinate. Otherwise, update X axis domain
       if (!extent) {
         if (!idleTimeout) return (idleTimeout = setTimeout(idled, 350)); // This allows to wait a little bit
-        x.domain(d3.extent(data, (d) => Number(d.usage)));
+        x.domain([0, maxXValue]);
       } else {
         x.domain([x.invert(extent[0]), x.invert(extent[1])]);
         areaChart.select(".brush").call(brush.move, null); // This remove the grey brush area as soon as the selection has been done

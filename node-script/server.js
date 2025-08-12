@@ -107,8 +107,8 @@ function processUsageData(rawData) {
   // Generate CSV header
   macList.forEach(mac => {
     const deviceName = devices[mac].slice(0, 10);
-    const usageGB = Math.round(totals[mac].usage / 1024 / 1024 / 1024);
-    csvData += `${deviceName}_${usageGB}GB,`;
+    const usageMB = Math.round(totals[mac].usage / 1024 / 1024);
+    csvData += `${deviceName}_${usageMB}MB,`;
   });
   csvData = csvData.slice(0, -1) + '\n';
 
@@ -161,7 +161,7 @@ function processUsageData(rawData) {
       mac,
       name: devices[mac],
       usage: totals[mac].usage,
-      usageGB: Math.round(totals[mac].usage / 1024 / 1024 / 1024)
+      usageMB: Math.round(totals[mac].usage / 1024 / 1024)
     }))
   };
 }
