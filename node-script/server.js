@@ -197,31 +197,51 @@ app.post('/api/scrape', async (req, res) => {
     console.log('Manual scraping triggered via API');
     
     const startTime = new Date().toISOString();
-    const data = await scrapeWebsite();
+    const rawData = await scrapeWebsite();
     const endTime = new Date().toISOString();
+    
+    // Filter out devices with 0 usage to reduce file size
+    const filteredData = {};
+    Object.entries(rawData).forEach(([mac, deviceInfo]) => {
+      const usage = deviceInfo.usage;
+      // Keep only devices with non-zero usage
+      if (usage !== "0" && usage !== 0 && parseFloat(usage) > 0) {
+        filteredData[mac] = deviceInfo;
+      }
+    });
     
     const result = {
       timestamp: Date.now().toString(),
       startTime,
       endTime,
-      data
+      data: filteredData
     };
     
-    // Save to file
-    const existingData = readUsageData();
+    // Save to file with optimized file management
+    const maxEntries = parseInt(process.env.MAX_ENTRIES) || 4320; // 30 days of 10-min intervals
+    let existingData = readUsageData();
     existingData.push(result);
     
-    // Keep only last 100 entries
-    if (existingData.length > 100) {
-      existingData.splice(0, existingData.length - 100);
+    // Keep only last N entries
+    if (existingData.length > maxEntries) {
+      const entriesToRemove = existingData.length - maxEntries;
+      existingData.splice(0, entriesToRemove);
     }
     
-    fs.writeFileSync(DATA_FILE, JSON.stringify(existingData, null, 2));
+    // Write file atomically to prevent corruption during reads
+    const tempFile = DATA_FILE + '.tmp';
+    fs.writeFileSync(tempFile, JSON.stringify(existingData, null, 2));
+    fs.renameSync(tempFile, DATA_FILE);
+    
+    const activeDevices = Object.keys(filteredData).length;
+    const totalDevices = Object.keys(rawData).length;
     
     res.json({ 
       success: true, 
       message: 'Scraping completed successfully',
-      data: result
+      data: result,
+      totalEntries: existingData.length,
+      devicesFiltered: `${activeDevices}/${totalDevices} devices with usage > 0`
     });
   } catch (error) {
     console.error('Error during manual scraping:', error);
@@ -236,6 +256,8 @@ app.post('/api/scrape', async (req, res) => {
 app.get('/api/status', (req, res) => {
   const data = readUsageData();
   const lastEntry = data.length > 0 ? data[data.length - 1] : null;
+  const maxEntries = parseInt(process.env.MAX_ENTRIES) || 4320; // 30 days of 10-min intervals
+  const scrapeInterval = process.env.SCRAPE_INTERVAL || '*/10 * * * *';
   
   res.json({
     status: 'running',
@@ -243,7 +265,10 @@ app.get('/api/status', (req, res) => {
     uptime: process.uptime(),
     lastScrape: lastEntry ? lastEntry.endTime : null,
     totalEntries: data.length,
-    nextScheduledScrape: 'Every hour at minute 0' // Based on cron schedule
+    maxEntries: maxEntries,
+    nextScheduledScrape: scrapeInterval === '*/10 * * * *' ? 'Every 10 minutes' : scrapeInterval,
+    dataRetention: `${Math.floor(maxEntries * 10 / 60 / 24)} days (${maxEntries} entries)`,
+    fileSize: fs.existsSync(DATA_FILE) ? `${(fs.statSync(DATA_FILE).size / 1024 / 1024).toFixed(2)} MB` : '0 MB'
   });
 });
 
@@ -310,37 +335,59 @@ app.use((error, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Schedule automatic scraping (every hour)
+// Schedule automatic scraping (every 10 minutes)
 const scheduleEnabled = process.env.DISABLE_CRON !== 'true';
+const maxEntries = parseInt(process.env.MAX_ENTRIES) || 4320; // 30 days of 10-min intervals (30 * 24 * 6)
+const scrapeInterval = process.env.SCRAPE_INTERVAL || '*/10 * * * *'; // Every 10 minutes
+
 if (scheduleEnabled) {
-  console.log('🕒 Setting up automatic scraping schedule (every hour)...');
-  cron.schedule('0 * * * *', async () => {
+  console.log('🕒 Setting up automatic scraping schedule (every 10 minutes)...');
+  cron.schedule(scrapeInterval, async () => {
     try {
       console.log('🤖 Running scheduled scraping...');
       
       const startTime = new Date().toISOString();
-      const data = await scrapeWebsite();
+      const rawData = await scrapeWebsite();
       const endTime = new Date().toISOString();
+      
+      // Filter out devices with 0 usage to reduce file size
+      const filteredData = {};
+      Object.entries(rawData).forEach(([mac, deviceInfo]) => {
+        const usage = deviceInfo.usage;
+        // Keep only devices with non-zero usage
+        if (usage !== "0" && usage !== 0 && parseFloat(usage) > 0) {
+          filteredData[mac] = deviceInfo;
+        }
+      });
       
       const result = {
         timestamp: Date.now().toString(),
         startTime,
         endTime,
-        data
+        data: filteredData
       };
       
-      // Save to file
-      const existingData = readUsageData();
+      // Save to file with optimized file management
+      let existingData = readUsageData();
       existingData.push(result);
       
-      // Keep only last 100 entries
-      if (existingData.length > 100) {
-        existingData.splice(0, existingData.length - 100);
+      // Keep only last N entries (configurable, default 30 days of 10-min intervals)
+      if (existingData.length > maxEntries) {
+        const entriesToRemove = existingData.length - maxEntries;
+        existingData.splice(0, entriesToRemove);
+        console.log(`📁 Cleaned up ${entriesToRemove} old entries, keeping last ${maxEntries}`);
       }
       
-      fs.writeFileSync(DATA_FILE, JSON.stringify(existingData, null, 2));
+      // Write file atomically to prevent corruption during reads
+      const tempFile = DATA_FILE + '.tmp';
+      fs.writeFileSync(tempFile, JSON.stringify(existingData, null, 2));
+      fs.renameSync(tempFile, DATA_FILE);
       
-      console.log('✅ Scheduled scraping completed successfully');
+      const activeDevices = Object.keys(filteredData).length;
+      const totalDevices = Object.keys(rawData).length;
+      
+      console.log(`✅ Scheduled scraping completed successfully (${existingData.length} total entries)`);
+      console.log(`📱 Active devices: ${activeDevices}/${totalDevices} with usage > 0`);
     } catch (error) {
       console.error('❌ Scheduled scraping failed:', error);
     }
@@ -359,8 +406,12 @@ app.listen(PORT, () => {
   console.log(`   GET  http://localhost:${PORT}/api/status - Get server status`);
   console.log(`   GET  http://localhost:${PORT}/health - Health check`);
   
+  const maxEntries = parseInt(process.env.MAX_ENTRIES) || 4320; // 30 days of 10-min intervals
+  const scrapeInterval = process.env.SCRAPE_INTERVAL || '*/10 * * * *';
+  
   if (scheduleEnabled) {
-    console.log(`⏰ Automatic scraping: Enabled (every hour)`);
+    console.log(`⏰ Automatic scraping: Enabled (${scrapeInterval === '*/10 * * * *' ? 'every 10 minutes' : scrapeInterval})`);
+    console.log(`📁 Data retention: ${Math.floor(maxEntries * 10 / 60 / 24)} days (${maxEntries} entries max)`);
   } else {
     console.log(`⏰ Automatic scraping: Disabled (DISABLE_CRON=true)`);
   }
