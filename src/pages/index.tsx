@@ -1,7 +1,9 @@
 import Head from "next/head";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import styles from "@/styles/Home.module.css";
 import EnhancedAreaChart from "@/components/EnhancedAreaChart";
+import SystemMonitor from "@/components/SystemMonitor";
 import { getUsageData, ProcessedUsageData } from "@/utils/api";
 
 export default function Home() {
@@ -111,6 +113,9 @@ export default function Home() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '20px' }}>
           <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>TP-Link Usage Dashboard</h1>
         </div>
+        
+        {/* System Monitor */}
+        <SystemMonitor refreshInterval={30000} />
         
         <EnhancedAreaChart 
           csvData={data.csvData} 

@@ -5,11 +5,129 @@ const fs = require('fs');
 const cron = require('node-cron');
 const dotenv = require('dotenv');
 const puppeteer = require('puppeteer');
+const { execSync } = require('child_process');
 
 // Load environment variables
 dotenv.config();
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// System monitoring functions for Raspberry Pi
+function getSystemInfo() {
+  try {
+    const systemInfo = {};
+    
+    // CPU Temperature
+    try {
+      const tempOutput = execSync('cat /sys/class/thermal/thermal_zone0/temp', { encoding: 'utf8' });
+      systemInfo.cpuTemp = parseFloat(tempOutput.trim()) / 1000; // Convert from millidegrees to degrees
+    } catch (error) {
+      systemInfo.cpuTemp = null;
+    }
+    
+    // CPU Usage
+    try {
+      const cpuUsage = execSync("top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | awk -F'%' '{print $1}'", { encoding: 'utf8' });
+      systemInfo.cpuUsage = parseFloat(cpuUsage.trim()) || 0;
+    } catch (error) {
+      systemInfo.cpuUsage = null;
+    }
+    
+    // Memory Usage
+    try {
+      const memInfo = execSync('free -m', { encoding: 'utf8' });
+      const memLines = memInfo.split('\n');
+      const memLine = memLines[1].split(/\s+/);
+      const totalMem = parseInt(memLine[1]);
+      const usedMem = parseInt(memLine[2]);
+      systemInfo.memoryTotal = totalMem;
+      systemInfo.memoryUsed = usedMem;
+      systemInfo.memoryUsage = (usedMem / totalMem) * 100;
+    } catch (error) {
+      systemInfo.memoryTotal = null;
+      systemInfo.memoryUsed = null;
+      systemInfo.memoryUsage = null;
+    }
+    
+    // Disk Usage
+    try {
+      const diskInfo = execSync("df -h / | awk 'NR==2{printf \"%s %s %s %s\", $2,$3,$4,$5}'", { encoding: 'utf8' });
+      const [total, used, available, usagePercent] = diskInfo.trim().split(' ');
+      systemInfo.diskTotal = total;
+      systemInfo.diskUsed = used;
+      systemInfo.diskAvailable = available;
+      systemInfo.diskUsage = parseFloat(usagePercent.replace('%', ''));
+    } catch (error) {
+      systemInfo.diskTotal = null;
+      systemInfo.diskUsed = null;
+      systemInfo.diskAvailable = null;
+      systemInfo.diskUsage = null;
+    }
+    
+    // Load Average
+    try {
+      const loadAvg = execSync('cat /proc/loadavg', { encoding: 'utf8' });
+      const loads = loadAvg.trim().split(' ');
+      systemInfo.loadAverage = {
+        '1min': parseFloat(loads[0]),
+        '5min': parseFloat(loads[1]),
+        '15min': parseFloat(loads[2])
+      };
+    } catch (error) {
+      systemInfo.loadAverage = null;
+    }
+    
+    // Voltage (if available)
+    try {
+      const voltage = execSync('vcgencmd measure_volts core', { encoding: 'utf8' });
+      const voltageMatch = voltage.match(/volt=([0-9.]+)V/);
+      systemInfo.voltage = voltageMatch ? parseFloat(voltageMatch[1]) : null;
+    } catch (error) {
+      systemInfo.voltage = null;
+    }
+    
+    // Throttling status
+    try {
+      const throttle = execSync('vcgencmd get_throttled', { encoding: 'utf8' });
+      const throttleMatch = throttle.match(/throttled=0x([0-9a-fA-F]+)/);
+      const throttleHex = throttleMatch ? throttleMatch[1] : '0';
+      const throttleInt = parseInt(throttleHex, 16);
+      
+      systemInfo.throttling = {
+        underVoltageDetected: !!(throttleInt & 0x1),
+        armFrequencyCapped: !!(throttleInt & 0x2),
+        currentlyThrottled: !!(throttleInt & 0x4),
+        temperatureLimit: !!(throttleInt & 0x8),
+        underVoltageOccurred: !!(throttleInt & 0x10000),
+        armFrequencyCappingOccurred: !!(throttleInt & 0x20000),
+        throttlingOccurred: !!(throttleInt & 0x40000),
+        temperatureLimitOccurred: !!(throttleInt & 0x80000)
+      };
+    } catch (error) {
+      systemInfo.throttling = null;
+    }
+    
+    // Uptime
+    try {
+      const uptime = execSync('cat /proc/uptime', { encoding: 'utf8' });
+      const uptimeSeconds = parseFloat(uptime.split(' ')[0]);
+      systemInfo.uptime = uptimeSeconds;
+    } catch (error) {
+      systemInfo.uptime = process.uptime(); // Fallback to process uptime
+    }
+    
+    // System timestamp
+    systemInfo.timestamp = new Date().toISOString();
+    
+    return systemInfo;
+  } catch (error) {
+    console.error('Error getting system info:', error);
+    return {
+      error: 'Failed to retrieve system information',
+      timestamp: new Date().toISOString()
+    };
+  }
+}
 
 async function scrapeWebsite() {
   const selectors = {
@@ -661,6 +779,20 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+// Get Raspberry Pi system information
+app.get('/api/system', (req, res) => {
+  try {
+    const systemInfo = getSystemInfo();
+    res.json(systemInfo);
+  } catch (error) {
+    console.error('Error fetching system info:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch system information',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
@@ -786,6 +918,7 @@ app.listen(PORT, () => {
   console.log(`   PUT    http://localhost:${PORT}/api/devices/:mac/change-mac - Change device MAC address`);
   console.log(`   GET    http://localhost:${PORT}/api/scrape - Trigger manual scraping`);
   console.log(`   GET    http://localhost:${PORT}/api/status - Get server status`);
+  console.log(`   GET    http://localhost:${PORT}/api/system - Get Raspberry Pi system information`);
   console.log(`   GET    http://localhost:${PORT}/health - Health check`);
   
   const maxEntries = parseInt(process.env.MAX_ENTRIES) || 4320; // 30 days of 10-min intervals

@@ -66,6 +66,37 @@ export interface ServerStatus {
   nextScheduledScrape: string;
 }
 
+export interface SystemInfo {
+  cpuTemp: number | null;
+  cpuUsage: number | null;
+  memoryTotal: number | null;
+  memoryUsed: number | null;
+  memoryUsage: number | null;
+  diskTotal: string | null;
+  diskUsed: string | null;
+  diskAvailable: string | null;
+  diskUsage: number | null;
+  loadAverage: {
+    '1min': number;
+    '5min': number;
+    '15min': number;
+  } | null;
+  voltage: number | null;
+  throttling: {
+    underVoltageDetected: boolean;
+    armFrequencyCapped: boolean;
+    currentlyThrottled: boolean;
+    temperatureLimit: boolean;
+    underVoltageOccurred: boolean;
+    armFrequencyCappingOccurred: boolean;
+    throttlingOccurred: boolean;
+    temperatureLimitOccurred: boolean;
+  } | null;
+  uptime: number;
+  timestamp: string;
+  error?: string;
+}
+
 // Fetch processed usage data for the frontend
 export async function getUsageData(filters?: {
   startDate?: string;
@@ -139,6 +170,21 @@ export async function getServerStatus(): Promise<ServerStatus> {
     return await response.json();
   } catch (error) {
     console.error('Error fetching server status:', error);
+    throw error;
+  }
+}
+
+// Get Raspberry Pi system information
+export async function getSystemInfo(): Promise<SystemInfo> {
+  try {
+    const API_BASE_URL = getApiBaseUrl();
+    const response = await fetch(`${API_BASE_URL}/system`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching system info:', error);
     throw error;
   }
 }
