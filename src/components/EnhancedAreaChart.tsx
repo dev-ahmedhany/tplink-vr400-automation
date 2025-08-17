@@ -53,7 +53,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
         .attr("y", height / 2)
         .attr("text-anchor", "middle")
         .style("font-size", "16px")
-        .style("fill", "#6b7280")
+        .style("fill", "#e5e7eb")
         .style("font-weight", "500")
         .text("No data available for the selected time range");
       return;
@@ -145,14 +145,14 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       )
       .selectAll("text")
       .style("text-anchor", "end")
-      .style("fill", "#374151")
+      .style("fill", "#e5e7eb")
       .attr("dx", "-.8em")
       .attr("dy", ".15em")
       .attr("transform", "rotate(-45)");
       
       // Style axis lines and ticks
       xAxis.selectAll("path, line")
-        .style("stroke", "#d1d5db");
+        .style("stroke", "#4a5568");
     };
 
     updateXAxis();
@@ -162,9 +162,9 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
     
     // Style Y axis
     yAxis.selectAll("text")
-      .style("fill", "#374151");
+      .style("fill", "#e5e7eb");
     yAxis.selectAll("path, line")
-      .style("stroke", "#d1d5db");
+      .style("stroke", "#4a5568");
 
     // Add axis labels
     svg
@@ -172,7 +172,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       .attr("text-anchor", "middle")
       .attr("x", width / 2)
       .attr("y", height + 70)
-      .attr("fill", "#374151")
+      .attr("fill", "#e5e7eb")
       .style("font-size", "12px")
       .style("font-weight", "500")
       .text("Date & Time");
@@ -183,7 +183,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       .attr("transform", "rotate(-90)")
       .attr("y", -45)
       .attr("x", -height / 2)
-      .attr("fill", "#374151")
+      .attr("fill", "#e5e7eb")
       .style("font-size", "12px")
       .style("font-weight", "500")
       .text("Usage Rate (MB/min)");
@@ -215,7 +215,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       )
       .selectAll("text")
       .style("text-anchor", "end")
-      .style("fill", "#374151")
+      .style("fill", "#e5e7eb")
       .attr("dx", "-.8em")
       .attr("dy", ".15em")
       .attr("transform", "rotate(-45)");
@@ -300,7 +300,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       .join("text")
       .attr("x", legendSize + 5)
       .attr("y", (d: string, i: number) => i * (legendSize + 5) + legendSize / 2)
-      .style("fill", "#374151")
+      .style("fill", "#e5e7eb")
       .style("font-size", "12px")
       .style("font-weight", "500")
       .style("alignment-baseline", "middle")
@@ -342,8 +342,8 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       <div style={{ 
         marginBottom: '1.5rem', 
         padding: '1.25rem', 
-        background: '#f9fafb',
-        border: '1px solid #e5e7eb',
+        background: '#2a2f3e',
+        border: '1px solid #374151',
         borderRadius: '12px',
         display: 'flex',
         flexWrap: 'wrap',
@@ -355,7 +355,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
           marginRight: '1rem', 
           fontSize: '0.875rem',
           fontWeight: '600',
-          color: '#374151',
+          color: '#e5e7eb',
           textTransform: 'uppercase',
           letterSpacing: '0.05em'
         }}>
@@ -368,9 +368,9 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
             onClick={() => handleFilterChange({ hours: 1 })}
             style={{
               padding: '0.5rem 1rem',
-              background: filters.hours === 1 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'white',
-              color: filters.hours === 1 ? 'white' : '#374151',
-              border: filters.hours === 1 ? 'none' : '1px solid #d1d5db',
+              background: filters.hours === 1 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#2a2f3e',
+              color: filters.hours === 1 ? 'white' : '#e5e7eb',
+              border: filters.hours === 1 ? 'none' : '1px solid #4a5568',
               borderRadius: '8px',
               cursor: 'pointer',
               fontSize: '0.75rem',
@@ -385,9 +385,9 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
             onClick={() => handleFilterChange({ hours: 6 })}
             style={{
               padding: '0.5rem 1rem',
-              background: filters.hours === 6 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'white',
-              color: filters.hours === 6 ? 'white' : '#374151',
-              border: filters.hours === 6 ? 'none' : '1px solid #d1d5db',
+              background: filters.hours === 6 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#2a2f3e',
+              color: filters.hours === 6 ? 'white' : '#e5e7eb',
+              border: filters.hours === 6 ? 'none' : '1px solid #4a5568',
               borderRadius: '8px',
               cursor: 'pointer',
               fontSize: '0.75rem',
@@ -402,9 +402,9 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
             onClick={() => handleFilterChange({ hours: 24 })}
             style={{
               padding: '0.5rem 1rem',
-              background: filters.hours === 24 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'white',
-              color: filters.hours === 24 ? 'white' : '#374151',
-              border: filters.hours === 24 ? 'none' : '1px solid #d1d5db',
+              background: filters.hours === 24 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#2a2f3e',
+              color: filters.hours === 24 ? 'white' : '#e5e7eb',
+              border: filters.hours === 24 ? 'none' : '1px solid #4a5568',
               borderRadius: '8px',
               cursor: 'pointer',
               fontSize: '0.75rem',
@@ -419,9 +419,9 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
             onClick={() => handleFilterChange({ hours: 168 })}
             style={{
               padding: '0.5rem 1rem',
-              background: filters.hours === 168 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'white',
-              color: filters.hours === 168 ? 'white' : '#374151',
-              border: filters.hours === 168 ? 'none' : '1px solid #d1d5db',
+              background: filters.hours === 168 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#2a2f3e',
+              color: filters.hours === 168 ? 'white' : '#e5e7eb',
+              border: filters.hours === 168 ? 'none' : '1px solid #4a5568',
               borderRadius: '8px',
               cursor: 'pointer',
               fontSize: '0.75rem',
@@ -439,7 +439,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
           <label style={{ 
             fontSize: '0.75rem', 
             fontWeight: '500',
-            color: '#374151',
+            color: '#e5e7eb',
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem'
@@ -452,17 +452,17 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
               style={{
                 padding: '0.5rem',
                 fontSize: '0.75rem',
-                border: '1px solid #d1d5db',
+                border: '1px solid #4a5568',
                 borderRadius: '8px',
-                background: 'white',
-                color: '#374151'
+                background: '#2a2f3e',
+                color: '#e5e7eb'
               }}
             />
           </label>
           <label style={{ 
             fontSize: '0.75rem', 
             fontWeight: '500',
-            color: '#374151',
+            color: '#e5e7eb',
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem'
@@ -475,10 +475,10 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
               style={{
                 padding: '0.5rem',
                 fontSize: '0.75rem',
-                border: '1px solid #d1d5db',
+                border: '1px solid #4a5568',
                 borderRadius: '8px',
-                background: 'white',
-                color: '#374151'
+                background: '#2a2f3e',
+                color: '#e5e7eb'
               }}
             />
           </label>
@@ -509,12 +509,12 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       <div style={{ 
         marginTop: '1rem', 
         fontSize: '0.75rem', 
-        color: '#6b7280',
+        color: '#9ca3af',
         fontStyle: 'italic',
         padding: '0.75rem',
-        background: '#f9fafb',
+        background: '#2a2f3e',
         borderRadius: '8px',
-        border: '1px solid #e5e7eb'
+        border: '1px solid #374151'
       }}>
         💡 <strong>Tips:</strong> Use the time filters above, drag on the chart to zoom in, double-click to reset zoom, hover over the chart for details.
       </div>

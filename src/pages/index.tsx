@@ -57,7 +57,7 @@ export default function Home() {
       
       <div style={{
         minHeight: '100vh',
-        backgroundColor: '#f5f7fa',
+        backgroundColor: '#0f1419',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
         position: 'relative'
       }}>
@@ -69,7 +69,7 @@ export default function Home() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(245, 247, 250, 0.9)',
+            backgroundColor: 'rgba(15, 20, 25, 0.95)',
             backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
@@ -77,22 +77,23 @@ export default function Home() {
             zIndex: 1000
           }}>
             <div style={{
-              background: 'white',
+              background: '#1a1f2e',
               borderRadius: '16px',
               padding: '2rem',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)',
-              textAlign: 'center'
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)',
+              textAlign: 'center',
+              border: '1px solid #2d3748'
             }}>
               <div style={{
                 width: '40px',
                 height: '40px',
-                border: '4px solid #e5e7eb',
+                border: '4px solid #374151',
                 borderTop: '4px solid #667eea',
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite',
                 margin: '0 auto 1rem'
               }}></div>
-              <p style={{ margin: 0, color: '#374151', fontSize: '1rem' }}>Updating data...</p>
+              <p style={{ margin: 0, color: '#e5e7eb', fontSize: '1rem' }}>Updating data...</p>
             </div>
           </div>
         )}
@@ -103,12 +104,12 @@ export default function Home() {
             position: 'fixed',
             top: '1rem',
             right: '1rem',
-            backgroundColor: '#fee2e2',
-            color: '#dc2626',
+            backgroundColor: '#7f1d1d',
+            color: '#fecaca',
             padding: '1rem',
             borderRadius: '12px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #fecaca',
+            border: '1px solid #991b1b',
             maxWidth: '400px',
             zIndex: 1000,
             display: 'flex',
@@ -125,7 +126,7 @@ export default function Home() {
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#dc2626',
+                color: '#fecaca',
                 cursor: 'pointer',
                 fontSize: '1.25rem',
                 padding: '0.25rem'
@@ -196,22 +197,24 @@ export default function Home() {
         }}>
           {/* System Monitor Card */}
           <div style={{
-            background: 'white',
+            background: '#1a1f2e',
             borderRadius: '16px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)',
             marginBottom: '2rem',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            border: '1px solid #2d3748'
           }}>
             <SystemMonitor refreshInterval={30000} />
           </div>
 
           {/* Usage Analytics Card */}
           <div style={{
-            background: 'white',
+            background: '#1a1f2e',
             borderRadius: '16px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)',
             padding: '1.5rem',
-            marginBottom: '2rem'
+            marginBottom: '2rem',
+            border: '1px solid #2d3748'
           }}>
             <div style={{
               display: 'flex',
@@ -225,7 +228,7 @@ export default function Home() {
                 margin: 0,
                 fontSize: '1.5rem',
                 fontWeight: '600',
-                color: '#1f2937',
+                color: '#e5e7eb',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
@@ -292,11 +295,11 @@ export default function Home() {
 
             {/* Last Updated Card */}
             <div style={{
-              background: 'white',
+              background: '#1a1f2e',
               borderRadius: '16px',
               padding: '1.5rem',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)',
-              border: '1px solid #e5e7eb'
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)',
+              border: '1px solid #2d3748'
             }}>
               <div style={{
                 display: 'flex',
@@ -311,7 +314,7 @@ export default function Home() {
                   margin: 0,
                   fontSize: '0.875rem',
                   fontWeight: '500',
-                  color: '#6b7280',
+                  color: '#9ca3af',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
@@ -321,14 +324,14 @@ export default function Home() {
               <div style={{
                 fontSize: '1.25rem',
                 fontWeight: '600',
-                color: '#1f2937',
+                color: '#e5e7eb',
                 marginBottom: '0.25rem'
               }}>
                 {formatLastUpdated(data?.lastUpdated || (new Date()).toString())}
               </div>
               <div style={{
                 fontSize: '0.875rem',
-                color: '#6b7280'
+                color: '#9ca3af'
               }}>
                 Auto-refresh every 5 min
               </div>
@@ -336,11 +339,11 @@ export default function Home() {
 
             {/* Active Devices Card */}
             <div style={{
-              background: 'white',
+              background: '#1a1f2e',
               borderRadius: '16px',
               padding: '1.5rem',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)',
-              border: '1px solid #e5e7eb'
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)',
+              border: '1px solid #2d3748'
             }}>
               <div style={{
                 display: 'flex',
@@ -355,7 +358,7 @@ export default function Home() {
                   margin: 0,
                   fontSize: '0.875rem',
                   fontWeight: '500',
-                  color: '#6b7280',
+                  color: '#9ca3af',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
@@ -365,14 +368,14 @@ export default function Home() {
               <div style={{
                 fontSize: '1.25rem',
                 fontWeight: '600',
-                color: '#1f2937',
+                color: '#e5e7eb',
                 marginBottom: '0.25rem'
               }}>
                 {data?.devices?.length || 0}
               </div>
               <div style={{
                 fontSize: '0.875rem',
-                color: '#6b7280'
+                color: '#9ca3af'
               }}>
                 Currently tracked
               </div>
@@ -382,16 +385,17 @@ export default function Home() {
           {/* Device List (if you want to show top devices) */}
           {data?.devices && data.devices.length > 0 && (
             <div style={{
-              background: 'white',
+              background: '#1a1f2e',
               borderRadius: '16px',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)',
-              padding: '1.5rem'
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)',
+              padding: '1.5rem',
+              border: '1px solid #2d3748'
             }}>
               <h2 style={{
                 margin: '0 0 1.5rem 0',
                 fontSize: '1.5rem',
                 fontWeight: '600',
-                color: '#1f2937',
+                color: '#e5e7eb',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
@@ -408,9 +412,9 @@ export default function Home() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '1rem',
-                    background: '#f9fafb',
+                    background: '#2a2f3e',
                     borderRadius: '12px',
-                    border: '1px solid #e5e7eb'
+                    border: '1px solid #374151'
                   }}>
                     <div style={{
                       display: 'flex',
@@ -421,8 +425,8 @@ export default function Home() {
                         width: '2rem',
                         height: '2rem',
                         borderRadius: '50%',
-                        background: index < 3 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#e5e7eb',
-                        color: index < 3 ? 'white' : '#6b7280',
+                        background: index < 3 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#374151',
+                        color: index < 3 ? 'white' : '#9ca3af',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -434,14 +438,14 @@ export default function Home() {
                       <div>
                         <div style={{
                           fontWeight: '500',
-                          color: '#1f2937',
+                          color: '#e5e7eb',
                           marginBottom: '0.25rem'
                         }}>
                           {device.name}
                         </div>
                         <div style={{
                           fontSize: '0.75rem',
-                          color: '#6b7280',
+                          color: '#9ca3af',
                           fontFamily: 'monospace'
                         }}>
                           {device.mac}
@@ -453,7 +457,7 @@ export default function Home() {
                     }}>
                       <div style={{
                         fontWeight: '600',
-                        color: '#1f2937',
+                        color: '#e5e7eb',
                         fontSize: '1rem'
                       }}>
                         {device.usageMB >= 1024 ? 
@@ -463,7 +467,7 @@ export default function Home() {
                       </div>
                       <div style={{
                         fontSize: '0.75rem',
-                        color: '#6b7280'
+                        color: '#9ca3af'
                       }}>
                         Total usage
                       </div>
@@ -500,17 +504,18 @@ export default function Home() {
 
             return people.length > 1 ? (
               <div style={{
-                background: 'white',
+                background: '#1a1f2e',
                 borderRadius: '16px',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)',
                 padding: '1.5rem',
-                marginTop: '2rem'
+                marginTop: '2rem',
+                border: '1px solid #2d3748'
               }}>
                 <h2 style={{
                   margin: '0 0 1.5rem 0',
                   fontSize: '1.5rem',
                   fontWeight: '600',
-                  color: '#1f2937',
+                  color: '#e5e7eb',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem'
@@ -527,9 +532,9 @@ export default function Home() {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       padding: '1rem',
-                      background: '#f9fafb',
+                      background: '#2a2f3e',
                       borderRadius: '12px',
-                      border: '1px solid #e5e7eb'
+                      border: '1px solid #374151'
                     }}>
                       <div style={{
                         display: 'flex',
@@ -540,8 +545,8 @@ export default function Home() {
                           width: '2rem',
                           height: '2rem',
                           borderRadius: '50%',
-                          background: index < 3 ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : '#e5e7eb',
-                          color: index < 3 ? 'white' : '#6b7280',
+                          background: index < 3 ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : '#374151',
+                          color: index < 3 ? 'white' : '#9ca3af',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -553,14 +558,14 @@ export default function Home() {
                         <div>
                           <div style={{
                             fontWeight: '500',
-                            color: '#1f2937',
+                            color: '#e5e7eb',
                             marginBottom: '0.25rem'
                           }}>
                             {person.name.toUpperCase()}
                           </div>
                           <div style={{
                             fontSize: '0.75rem',
-                            color: '#6b7280'
+                            color: '#9ca3af'
                           }}>
                             {person.devices.length} device{person.devices.length !== 1 ? 's' : ''}
                           </div>
@@ -571,7 +576,7 @@ export default function Home() {
                       }}>
                         <div style={{
                           fontWeight: '600',
-                          color: '#1f2937',
+                          color: '#e5e7eb',
                           fontSize: '1rem'
                         }}>
                           {person.totalUsageMB >= 1024 ? 
@@ -581,7 +586,7 @@ export default function Home() {
                         </div>
                         <div style={{
                           fontSize: '0.75rem',
-                          color: '#6b7280'
+                          color: '#9ca3af'
                         }}>
                           Combined usage
                         </div>

@@ -64,15 +64,15 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
   if (loading) {
     return (
       <div style={{
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#2a2f3e',
         borderRadius: '8px',
         padding: '20px',
-        border: '1px solid #dee2e6'
+        border: '1px solid #374151'
       }}>
-        <h3 style={{ margin: '0 0 15px 0', fontSize: '1.2rem', color: '#333' }}>
+        <h3 style={{ margin: '0 0 15px 0', fontSize: '1.2rem', color: '#e5e7eb' }}>
           🖥️ Raspberry Pi System Status
         </h3>
-        <p style={{ margin: 0, color: '#666' }}>Loading system information...</p>
+        <p style={{ margin: 0, color: '#9ca3af' }}>Loading system information...</p>
       </div>
     );
   }
@@ -80,15 +80,15 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
   if (error) {
     return (
       <div style={{
-        backgroundColor: '#f8d7da',
+        backgroundColor: '#7f1d1d',
         borderRadius: '8px',
         padding: '20px',
-        border: '1px solid #f5c6cb'
+        border: '1px solid #991b1b'
       }}>
-        <h3 style={{ margin: '0 0 15px 0', fontSize: '1.2rem', color: '#721c24' }}>
+        <h3 style={{ margin: '0 0 15px 0', fontSize: '1.2rem', color: '#fecaca' }}>
           🖥️ Raspberry Pi System Status
         </h3>
-        <p style={{ margin: 0, color: '#721c24' }}>Error: {error}</p>
+        <p style={{ margin: 0, color: '#fecaca' }}>Error: {error}</p>
       </div>
     );
   }
@@ -122,11 +122,12 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
         </h2>
         <div style={{ 
           fontSize: '0.875rem', 
-          color: '#6b7280',
-          background: '#f3f4f6',
+          color: '#9ca3af',
+          background: '#2a2f3e',
           padding: '0.5rem 1rem',
           borderRadius: '8px',
-          fontWeight: '500'
+          fontWeight: '500',
+          border: '1px solid #374151'
         }}>
           Updated {new Date(systemInfo.timestamp).toLocaleTimeString()}
         </div>
@@ -139,14 +140,14 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
       }}>
         {/* CPU Temperature */}
         <div style={{ 
-          background: '#f9fafb',
+          background: '#2a2f3e',
           borderRadius: '12px',
           padding: '1.25rem',
-          border: '1px solid #e5e7eb',
+          border: '1px solid #374151',
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🌡️</div>
-          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+          <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '0.5rem', fontWeight: '500' }}>
             CPU Temperature
           </div>
           <div style={{ 
@@ -161,14 +162,14 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
 
         {/* CPU Usage */}
         <div style={{ 
-          background: '#f9fafb',
+          background: '#2a2f3e',
           borderRadius: '12px',
           padding: '1.25rem',
-          border: '1px solid #e5e7eb',
+          border: '1px solid #374151',
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⚡</div>
-          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+          <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '0.5rem', fontWeight: '500' }}>
             CPU Usage
           </div>
           <div style={{ 
@@ -183,14 +184,14 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
 
         {/* Memory Usage */}
         <div style={{ 
-          background: '#f9fafb',
+          background: '#2a2f3e',
           borderRadius: '12px',
           padding: '1.25rem',
-          border: '1px solid #e5e7eb',
+          border: '1px solid #374151',
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🧠</div>
-          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+          <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '0.5rem', fontWeight: '500' }}>
             Memory Usage
           </div>
           <div style={{ 
@@ -202,7 +203,7 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
             {systemInfo.memoryUsage !== null ? `${systemInfo.memoryUsage.toFixed(1)}%` : 'N/A'}
           </div>
           {systemInfo.memoryTotal && systemInfo.memoryUsed && (
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+            <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
               {systemInfo.memoryUsed}MB / {systemInfo.memoryTotal}MB
             </div>
           )}
@@ -210,14 +211,14 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
 
         {/* Disk Usage */}
         <div style={{ 
-          background: '#f9fafb',
+          background: '#2a2f3e',
           borderRadius: '12px',
           padding: '1.25rem',
-          border: '1px solid #e5e7eb',
+          border: '1px solid #374151',
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>💽</div>
-          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+          <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '0.5rem', fontWeight: '500' }}>
             Disk Usage
           </div>
           <div style={{ 
@@ -229,7 +230,7 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
             {systemInfo.diskUsage !== null ? `${systemInfo.diskUsage.toFixed(1)}%` : 'N/A'}
           </div>
           {systemInfo.diskUsed && systemInfo.diskTotal && (
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+            <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
               {systemInfo.diskUsed} / {systemInfo.diskTotal}
             </div>
           )}
@@ -238,14 +239,14 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
         {/* Voltage */}
         {systemInfo.voltage && (
           <div style={{ 
-            background: '#f9fafb',
+            background: '#2a2f3e',
             borderRadius: '12px',
             padding: '1.25rem',
-            border: '1px solid #e5e7eb',
+            border: '1px solid #374151',
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⚡</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '0.5rem', fontWeight: '500' }}>
               Core Voltage
             </div>
             <div style={{ 
@@ -262,20 +263,20 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
         {/* Load Average */}
         {systemInfo.loadAverage && (
           <div style={{ 
-            background: '#f9fafb',
+            background: '#2a2f3e',
             borderRadius: '12px',
             padding: '1.25rem',
-            border: '1px solid #e5e7eb',
+            border: '1px solid #374151',
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📊</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '0.5rem', fontWeight: '500' }}>
               Load Average
             </div>
-            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.25rem' }}>
+            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#e5e7eb', marginBottom: '0.25rem' }}>
               {systemInfo.loadAverage['1min'].toFixed(2)}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+            <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
               {systemInfo.loadAverage['5min'].toFixed(2)} | {systemInfo.loadAverage['15min'].toFixed(2)}
             </div>
           </div>
@@ -283,17 +284,17 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
 
         {/* Uptime */}
         <div style={{ 
-          background: '#f9fafb',
+          background: '#2a2f3e',
           borderRadius: '12px',
           padding: '1.25rem',
-          border: '1px solid #e5e7eb',
+          border: '1px solid #374151',
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⏰</div>
-          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+          <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '0.5rem', fontWeight: '500' }}>
             Uptime
           </div>
-          <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1f2937' }}>
+          <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#e5e7eb' }}>
             {formatUptime(systemInfo.uptime)}
           </div>
         </div>
