@@ -48,6 +48,15 @@ export interface DeleteDeviceResponse {
   remainingDevices: number;
 }
 
+export interface ChangeMacResponse {
+  success: boolean;
+  message: string;
+  oldMac: string;
+  newMac: string;
+  deviceName: string;
+  entriesAffected: number;
+}
+
 export interface ServerStatus {
   status: string;
   version: string;
@@ -181,6 +190,28 @@ export async function deleteDevice(mac: string): Promise<DeleteDeviceResponse> {
     return await response.json();
   } catch (error) {
     console.error('Error deleting device:', error);
+    throw error;
+  }
+}
+
+// Change MAC address for a device (combines usage from old MAC to new MAC)
+export async function changeMacAddress(oldMac: string, newMac: string, deviceName?: string): Promise<ChangeMacResponse> {
+  try {
+    const API_BASE_URL = getApiBaseUrl();
+    const response = await fetch(`${API_BASE_URL}/devices/${encodeURIComponent(oldMac)}/change-mac`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ newMac, deviceName }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error changing MAC address:', error);
     throw error;
   }
 }

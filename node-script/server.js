@@ -396,6 +396,128 @@ app.get('/api/devices', (req, res) => {
   }
 });
 
+// Change MAC address (combines usage data from old MAC to new MAC)
+app.put('/api/devices/:oldMac/change-mac', (req, res) => {
+  try {
+    const oldMac = req.params.oldMac;
+    const { newMac, deviceName } = req.body;
+    
+    if (!oldMac || !newMac) {
+      return res.status(400).json({ error: 'Both old and new MAC addresses are required' });
+    }
+    
+    if (oldMac === newMac) {
+      return res.status(400).json({ error: 'Old and new MAC addresses cannot be the same' });
+    }
+    
+    console.log(`Changing MAC address from ${oldMac} to ${newMac}`);
+    
+    // Read current data
+    const usageData = readUsageData();
+    const devicesData = readDevicesData();
+    
+    // Check if old device exists
+    const oldDeviceExists = devicesData[oldMac] || 
+                           usageData.some(entry => entry.data && entry.data[oldMac]);
+    
+    if (!oldDeviceExists) {
+      return res.status(404).json({ error: 'Old MAC address not found' });
+    }
+    
+    const oldDeviceName = devicesData[oldMac] || 'Unknown Device';
+    const finalDeviceName = deviceName || oldDeviceName;
+    
+    // Process usage data: combine old MAC usage with new MAC (if exists)
+    let totalEntriesAffected = 0;
+    const updatedUsageData = usageData.map(entry => {
+      if (entry.data && entry.data[oldMac]) {
+        totalEntriesAffected++;
+        const oldUsage = entry.data[oldMac];
+        const newUsage = entry.data[newMac] || '0';
+        
+        // Combine usage values
+        let combinedUsage = oldUsage;
+        if (newUsage !== '0') {
+          // If both devices have usage, we need to add them
+          // Parse the usage values and combine them
+          const parseUsage = (usage) => {
+            const usageNum = parseFloat(usage);
+            if (usage.includes('K')) {
+              return usageNum * 1024;
+            } else if (usage.includes('M')) {
+              return usageNum * 1024 * 1024;
+            } else if (usage.includes('G')) {
+              return usageNum * 1024 * 1024 * 1024;
+            } else {
+              return usageNum;
+            }
+          };
+          
+          const formatUsage = (bytes) => {
+            if (bytes >= 1024 * 1024 * 1024) {
+              return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)}G`;
+            } else if (bytes >= 1024 * 1024) {
+              return `${(bytes / (1024 * 1024)).toFixed(2)}M`;
+            } else if (bytes >= 1024) {
+              return `${(bytes / 1024).toFixed(2)}K`;
+            } else {
+              return `${bytes}`;
+            }
+          };
+          
+          const oldBytes = parseUsage(oldUsage);
+          const newBytes = parseUsage(newUsage);
+          combinedUsage = formatUsage(oldBytes + newBytes);
+        }
+        
+        // Create new data object: remove old MAC, set/update new MAC
+        const { [oldMac]: removed, ...remainingData } = entry.data;
+        return { 
+          ...entry, 
+          data: { 
+            ...remainingData, 
+            [newMac]: combinedUsage 
+          } 
+        };
+      }
+      return entry;
+    });
+    
+    // Update devices data: remove old MAC, add/update new MAC
+    const { [oldMac]: removedDevice, ...remainingDevices } = devicesData;
+    remainingDevices[newMac] = finalDeviceName;
+    
+    // Save updated data atomically
+    const tempUsageFile = DATA_FILE + '.tmp';
+    fs.writeFileSync(tempUsageFile, JSON.stringify(updatedUsageData, null, 2));
+    fs.renameSync(tempUsageFile, DATA_FILE);
+    
+    const tempDevicesFile = DEVICES_FILE + '.tmp';
+    fs.writeFileSync(tempDevicesFile, JSON.stringify(remainingDevices, null, 2));
+    fs.renameSync(tempDevicesFile, DEVICES_FILE);
+    
+    console.log(`✅ MAC address changed: ${oldMac} → ${newMac}`);
+    console.log(`   Device name: ${finalDeviceName}`);
+    console.log(`   Updated ${totalEntriesAffected} usage entries`);
+    
+    res.json({
+      success: true,
+      message: 'MAC address changed successfully',
+      oldMac,
+      newMac,
+      deviceName: finalDeviceName,
+      entriesAffected: totalEntriesAffected
+    });
+    
+  } catch (error) {
+    console.error('Error changing MAC address:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to change MAC address' 
+    });
+  }
+});
+
 // Delete device by MAC address (removes from both usage data and device names)
 app.delete('/api/devices/:mac', (req, res) => {
   try {
@@ -661,6 +783,7 @@ app.listen(PORT, () => {
   console.log(`   GET    http://localhost:${PORT}/api/usage/raw - Get raw usage data`);
   console.log(`   GET    http://localhost:${PORT}/api/devices - Get device names`);
   console.log(`   DELETE http://localhost:${PORT}/api/devices/:mac - Delete device by MAC address`);
+  console.log(`   PUT    http://localhost:${PORT}/api/devices/:mac/change-mac - Change device MAC address`);
   console.log(`   GET    http://localhost:${PORT}/api/scrape - Trigger manual scraping`);
   console.log(`   GET    http://localhost:${PORT}/api/status - Get server status`);
   console.log(`   GET    http://localhost:${PORT}/health - Health check`);
