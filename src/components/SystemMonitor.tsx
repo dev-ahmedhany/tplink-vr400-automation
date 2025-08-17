@@ -99,79 +99,137 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
 
   return (
     <div style={{
-      backgroundColor: '#f8f9fa',
-      borderRadius: '8px',
-      padding: '20px',
-      border: '1px solid #dee2e6',
-      marginBottom: '20px'
+      padding: '1.5rem'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#333' }}>
-          🖥️ Raspberry Pi System Status
-        </h3>
-        <span style={{ fontSize: '0.8rem', color: '#666' }}>
-          Last updated: {new Date(systemInfo.timestamp).toLocaleTimeString()}
-        </span>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '1.5rem',
+        flexWrap: 'wrap',
+        gap: '1rem'
+      }}>
+        <h2 style={{ 
+          margin: 0, 
+          fontSize: '1.5rem', 
+          fontWeight: '600', 
+          color: '#1f2937',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          🖥️ System Status
+        </h2>
+        <div style={{ 
+          fontSize: '0.875rem', 
+          color: '#6b7280',
+          background: '#f3f4f6',
+          padding: '0.5rem 1rem',
+          borderRadius: '8px',
+          fontWeight: '500'
+        }}>
+          Updated {new Date(systemInfo.timestamp).toLocaleTimeString()}
+        </div>
       </div>
 
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '15px'
+        gap: '1rem'
       }}>
         {/* CPU Temperature */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>CPU Temperature</div>
+        <div style={{ 
+          background: '#f9fafb',
+          borderRadius: '12px',
+          padding: '1.25rem',
+          border: '1px solid #e5e7eb',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🌡️</div>
+          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+            CPU Temperature
+          </div>
           <div style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: 'bold', 
-            color: getTemperatureColor(systemInfo.cpuTemp) 
+            fontSize: '1.75rem', 
+            fontWeight: '700', 
+            color: getTemperatureColor(systemInfo.cpuTemp),
+            marginBottom: '0.25rem'
           }}>
             {systemInfo.cpuTemp !== null ? `${systemInfo.cpuTemp.toFixed(1)}°C` : 'N/A'}
           </div>
         </div>
 
         {/* CPU Usage */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>CPU Usage</div>
+        <div style={{ 
+          background: '#f9fafb',
+          borderRadius: '12px',
+          padding: '1.25rem',
+          border: '1px solid #e5e7eb',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⚡</div>
+          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+            CPU Usage
+          </div>
           <div style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: 'bold', 
-            color: getUsageColor(systemInfo.cpuUsage) 
+            fontSize: '1.75rem', 
+            fontWeight: '700', 
+            color: getUsageColor(systemInfo.cpuUsage),
+            marginBottom: '0.25rem'
           }}>
             {systemInfo.cpuUsage !== null ? `${systemInfo.cpuUsage.toFixed(1)}%` : 'N/A'}
           </div>
         </div>
 
         {/* Memory Usage */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>Memory Usage</div>
+        <div style={{ 
+          background: '#f9fafb',
+          borderRadius: '12px',
+          padding: '1.25rem',
+          border: '1px solid #e5e7eb',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🧠</div>
+          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+            Memory Usage
+          </div>
           <div style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: 'bold', 
-            color: getUsageColor(systemInfo.memoryUsage) 
+            fontSize: '1.75rem', 
+            fontWeight: '700', 
+            color: getUsageColor(systemInfo.memoryUsage),
+            marginBottom: '0.25rem'
           }}>
             {systemInfo.memoryUsage !== null ? `${systemInfo.memoryUsage.toFixed(1)}%` : 'N/A'}
           </div>
           {systemInfo.memoryTotal && systemInfo.memoryUsed && (
-            <div style={{ fontSize: '0.8rem', color: '#666' }}>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
               {systemInfo.memoryUsed}MB / {systemInfo.memoryTotal}MB
             </div>
           )}
         </div>
 
         {/* Disk Usage */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>Disk Usage</div>
+        <div style={{ 
+          background: '#f9fafb',
+          borderRadius: '12px',
+          padding: '1.25rem',
+          border: '1px solid #e5e7eb',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>💽</div>
+          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+            Disk Usage
+          </div>
           <div style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: 'bold', 
-            color: getUsageColor(systemInfo.diskUsage) 
+            fontSize: '1.75rem', 
+            fontWeight: '700', 
+            color: getUsageColor(systemInfo.diskUsage),
+            marginBottom: '0.25rem'
           }}>
             {systemInfo.diskUsage !== null ? `${systemInfo.diskUsage.toFixed(1)}%` : 'N/A'}
           </div>
           {systemInfo.diskUsed && systemInfo.diskTotal && (
-            <div style={{ fontSize: '0.8rem', color: '#666' }}>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
               {systemInfo.diskUsed} / {systemInfo.diskTotal}
             </div>
           )}
@@ -179,12 +237,22 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
 
         {/* Voltage */}
         {systemInfo.voltage && (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>Core Voltage</div>
+          <div style={{ 
+            background: '#f9fafb',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            border: '1px solid #e5e7eb',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⚡</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+              Core Voltage
+            </div>
             <div style={{ 
-              fontSize: '1.5rem', 
-              fontWeight: 'bold', 
-              color: systemInfo.voltage < 1.2 ? '#dc3545' : '#28a745'
+              fontSize: '1.75rem', 
+              fontWeight: '700', 
+              color: systemInfo.voltage < 1.2 ? '#dc3545' : '#28a745',
+              marginBottom: '0.25rem'
             }}>
               {systemInfo.voltage.toFixed(2)}V
             </div>
@@ -193,21 +261,39 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
 
         {/* Load Average */}
         {systemInfo.loadAverage && (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>Load Average</div>
-            <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#333' }}>
+          <div style={{ 
+            background: '#f9fafb',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            border: '1px solid #e5e7eb',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📊</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+              Load Average
+            </div>
+            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.25rem' }}>
               {systemInfo.loadAverage['1min'].toFixed(2)}
             </div>
-            <div style={{ fontSize: '0.8rem', color: '#666' }}>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
               {systemInfo.loadAverage['5min'].toFixed(2)} | {systemInfo.loadAverage['15min'].toFixed(2)}
             </div>
           </div>
         )}
 
         {/* Uptime */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>Uptime</div>
-          <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#333' }}>
+        <div style={{ 
+          background: '#f9fafb',
+          borderRadius: '12px',
+          padding: '1.25rem',
+          border: '1px solid #e5e7eb',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⏰</div>
+          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: '500' }}>
+            Uptime
+          </div>
+          <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1f2937' }}>
             {formatUptime(systemInfo.uptime)}
           </div>
         </div>
@@ -215,21 +301,21 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
 
       {/* Throttling Warnings */}
       {systemInfo.throttling && (
-        <div style={{ marginTop: '15px' }}>
+        <div style={{ marginTop: '1.5rem' }}>
           {(systemInfo.throttling.currentlyThrottled || 
             systemInfo.throttling.underVoltageDetected || 
             systemInfo.throttling.temperatureLimit) && (
             <div style={{
-              backgroundColor: '#fff3cd',
-              border: '1px solid #ffeaa7',
-              borderRadius: '5px',
-              padding: '10px',
-              marginBottom: '10px'
+              background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+              color: 'white',
+              borderRadius: '12px',
+              padding: '1rem',
+              marginBottom: '1rem'
             }}>
-              <div style={{ fontWeight: 'bold', color: '#856404', marginBottom: '5px' }}>
-                ⚠️ Current Issues:
+              <div style={{ fontWeight: '600', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                ⚠️ Current Issues
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#856404' }}>
+              <div style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
                 {systemInfo.throttling.underVoltageDetected && '• Under-voltage detected\n'}
                 {systemInfo.throttling.currentlyThrottled && '• Currently throttled\n'}
                 {systemInfo.throttling.temperatureLimit && '• Temperature limit reached\n'}
@@ -242,15 +328,16 @@ export default function SystemMonitor({ refreshInterval = 30000 }: SystemMonitor
             systemInfo.throttling.underVoltageOccurred || 
             systemInfo.throttling.temperatureLimitOccurred) && (
             <div style={{
-              backgroundColor: '#d1ecf1',
-              border: '1px solid #bee5eb',
-              borderRadius: '5px',
-              padding: '10px'
+              background: '#e0f2fe',
+              border: '1px solid #b3e5fc',
+              borderRadius: '12px',
+              padding: '1rem',
+              color: '#01579b'
             }}>
-              <div style={{ fontWeight: 'bold', color: '#0c5460', marginBottom: '5px' }}>
-                ℹ️ Past Events:
+              <div style={{ fontWeight: '600', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                ℹ️ Past Events
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#0c5460' }}>
+              <div style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
                 {systemInfo.throttling.underVoltageOccurred && '• Under-voltage occurred\n'}
                 {systemInfo.throttling.throttlingOccurred && '• Throttling occurred\n'}
                 {systemInfo.throttling.temperatureLimitOccurred && '• Temperature limit reached\n'}
