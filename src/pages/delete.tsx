@@ -1,11 +1,8 @@
 import Head from "next/head";
 import Link from "next/link";
-import { Inter } from "next/font/google";
 import { useState, useEffect } from "react";
 import styles from "@/styles/Home.module.css";
 import { getDevices, getUsageData, deleteDevice, DevicesData, ProcessedUsageData } from "@/utils/api";
-
-const inter = Inter({ subsets: ["latin"] });
 
 interface DeviceWithUsage {
   mac: string;
@@ -103,7 +100,7 @@ export default function DeleteDevices() {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <main className={`${styles.main} ${inter.className}`}>
+        <main className={styles.main}>
           <div className={styles.center}>
             <p>Loading devices...</p>
           </div>
@@ -120,7 +117,7 @@ export default function DeleteDevices() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={`${styles.main} ${inter.className}`}>
+      <main className={styles.main}>
         <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
             <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>Delete Devices</h1>

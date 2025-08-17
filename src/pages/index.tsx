@@ -1,12 +1,8 @@
 import Head from "next/head";
-import Link from "next/link";
-import { Inter } from "next/font/google";
 import { useState, useEffect } from "react";
 import styles from "@/styles/Home.module.css";
 import EnhancedAreaChart from "@/components/EnhancedAreaChart";
 import { getUsageData, ProcessedUsageData } from "@/utils/api";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const [data, setData] = useState<ProcessedUsageData | null>(null);
@@ -57,7 +53,7 @@ export default function Home() {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <main className={`${styles.main} ${inter.className}`}>
+        <main className={styles.main}>
           <div className={styles.center}>
             <p>Loading usage data...</p>
           </div>
@@ -75,7 +71,7 @@ export default function Home() {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <main className={`${styles.main} ${inter.className}`}>
+        <main className={styles.main}>
           <div className={styles.center}>
             <p>Error loading data: {error}</p>
             <button onClick={() => window.location.reload()}>Retry</button>
@@ -94,7 +90,7 @@ export default function Home() {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <main className={`${styles.main} ${inter.className}`}>
+        <main className={styles.main}>
           <div className={styles.center}>
             <p>No data available</p>
           </div>
@@ -111,22 +107,9 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={`${styles.main} ${inter.className}`}>
+      <main className={styles.main}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '20px' }}>
           <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>TP-Link Usage Dashboard</h1>
-          <Link 
-            href="/delete" 
-            style={{ 
-              padding: '10px 20px', 
-              backgroundColor: '#dc3545', 
-              color: 'white', 
-              textDecoration: 'none', 
-              borderRadius: '5px',
-              fontSize: '14px'
-            }}
-          >
-            Manage Devices
-          </Link>
         </div>
         
         <EnhancedAreaChart 

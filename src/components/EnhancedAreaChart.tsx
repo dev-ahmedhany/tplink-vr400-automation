@@ -306,6 +306,19 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
   const getCurrentDate = () => new Date();
   const getHoursAgo = (hours: number) => new Date(Date.now() - hours * 60 * 60 * 1000);
 
+  // Get current input values for controlled inputs
+  const getStartDateValue = () => {
+    if (filters.startDate) return filters.startDate;
+    if (filters.hours) return formatDateForInput(getHoursAgo(filters.hours));
+    return '';
+  };
+
+  const getEndDateValue = () => {
+    if (filters.endDate) return filters.endDate;
+    if (filters.hours) return formatDateForInput(getCurrentDate());
+    return '';
+  };
+
   return (
     <div style={{ width: '100%' }}>
       {/* Time Filter Controls */}
@@ -387,7 +400,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
             From:
             <input
               type="datetime-local"
-              value={filters.startDate || ''}
+              value={getStartDateValue()}
               onChange={(e) => handleFilterChange({ ...filters, startDate: e.target.value, hours: undefined })}
               style={{
                 marginLeft: '5px',
@@ -402,7 +415,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
             To:
             <input
               type="datetime-local"
-              value={filters.endDate || ''}
+              value={getEndDateValue()}
               onChange={(e) => handleFilterChange({ ...filters, endDate: e.target.value, hours: undefined })}
               style={{
                 marginLeft: '5px',
