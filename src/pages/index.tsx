@@ -110,19 +110,6 @@ export default function Home() {
       <main className={`${styles.main} ${inter.className}`}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '20px' }}>
           <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>TP-Link Usage Dashboard</h1>
-          <Link 
-            href="/delete" 
-            style={{ 
-              padding: '10px 20px', 
-              backgroundColor: '#dc3545', 
-              color: 'white', 
-              textDecoration: 'none', 
-              borderRadius: '5px',
-              fontSize: '14px'
-            }}
-          >
-            Manage Devices
-          </Link>
         </div>
         <div className={styles.center}></div>
         <AreaChart csvData={data.csvData} />
