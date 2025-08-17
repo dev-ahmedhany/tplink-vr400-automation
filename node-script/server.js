@@ -244,7 +244,6 @@ function processUsageData(rawData) {
 
   // Calculate totals and generate CSV data
   const macList = Object.keys(devices);
-  let csvData = "usage,";
   
   // Process each entry to calculate usage
   rawData.forEach(entry => {
@@ -277,7 +276,8 @@ function processUsageData(rawData) {
   // Sort devices by usage
   macList.sort((a, b) => totals[b].usage - totals[a].usage);
 
-  // Generate CSV header
+  // Generate CSV header with timestamp
+  let csvData = "timestamp,";
   macList.forEach(mac => {
     const deviceName = devices[mac].slice(0, 10);
     const usageMB = Math.round(totals[mac].usage / 1024 / 1024);
@@ -285,8 +285,7 @@ function processUsageData(rawData) {
   });
   csvData = csvData.slice(0, -1) + '\n';
 
-  // Generate CSV data points
-  let startPoint = 0;
+  // Generate CSV data points with actual timestamps
   rawData.forEach(entry => {
     if (entry.data) {
       const startTime = new Date(entry.startTime).getTime();
@@ -294,11 +293,8 @@ function processUsageData(rawData) {
       const diff = endTime - startTime;
       const mid = startTime + diff / 2;
       
-      if (startPoint === 0) {
-        startPoint = Math.floor(mid / 1000 / 60 / 60) - 1;
-      }
-      
-      csvData += Math.floor(mid / 1000 / 60 / 60) - startPoint + ',';
+      // Use actual timestamp instead of relative hours
+      csvData += new Date(mid).toISOString() + ',';
       
       macList.forEach(mac => {
         if (entry.data[mac]) {
@@ -341,11 +337,36 @@ function processUsageData(rawData) {
 
 // API Routes
 
-// Get usage data for frontend
+// Get usage data for frontend with optional time filtering
 app.get('/api/usage', (req, res) => {
   try {
+    const { startDate, endDate, hours } = req.query;
     const rawData = readUsageData();
-    const processedData = processUsageData(rawData);
+    
+    // Filter data by time range if provided
+    let filteredData = rawData;
+    
+    if (startDate || endDate || hours) {
+      const now = new Date();
+      let filterStartTime, filterEndTime;
+      
+      if (hours) {
+        // Filter by last N hours
+        filterStartTime = new Date(now.getTime() - (parseInt(hours) * 60 * 60 * 1000));
+        filterEndTime = now;
+      } else {
+        // Filter by date range
+        filterStartTime = startDate ? new Date(startDate) : new Date(0);
+        filterEndTime = endDate ? new Date(endDate) : now;
+      }
+      
+      filteredData = rawData.filter(entry => {
+        const entryTime = new Date(entry.endTime || entry.timestamp);
+        return entryTime >= filterStartTime && entryTime <= filterEndTime;
+      });
+    }
+    
+    const processedData = processUsageData(filteredData);
     res.json(processedData);
   } catch (error) {
     console.error('Error processing usage data:', error);

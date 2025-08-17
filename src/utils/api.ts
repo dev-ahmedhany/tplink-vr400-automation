@@ -58,10 +58,22 @@ export interface ServerStatus {
 }
 
 // Fetch processed usage data for the frontend
-export async function getUsageData(): Promise<ProcessedUsageData> {
+export async function getUsageData(filters?: {
+  startDate?: string;
+  endDate?: string;
+  hours?: number;
+}): Promise<ProcessedUsageData> {
   try {
     const API_BASE_URL = getApiBaseUrl();
-    const response = await fetch(`${API_BASE_URL}/usage`);
+    const queryParams = new URLSearchParams();
+    
+    if (filters?.startDate) queryParams.append('startDate', filters.startDate);
+    if (filters?.endDate) queryParams.append('endDate', filters.endDate);
+    if (filters?.hours) queryParams.append('hours', filters.hours.toString());
+    
+    const url = `${API_BASE_URL}/usage${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const response = await fetch(url);
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

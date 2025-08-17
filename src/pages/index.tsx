@@ -1,8 +1,9 @@
 import Head from "next/head";
+import Link from "next/link";
 import { Inter } from "next/font/google";
 import { useState, useEffect } from "react";
 import styles from "@/styles/Home.module.css";
-import AreaChart from "@/components/StackedArea";
+import EnhancedAreaChart from "@/components/EnhancedAreaChart";
 import { getUsageData, ProcessedUsageData } from "@/utils/api";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -12,28 +13,32 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const usageData = await getUsageData();
-        setData(usageData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch data');
-        console.error('Error fetching usage data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async (filters?: { startDate?: string; endDate?: string; hours?: number }) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const usageData = await getUsageData(filters);
+      setData(usageData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      console.error('Error fetching usage data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
     
     // Set up polling every 5 minutes to refresh data
-    const interval = setInterval(fetchData, 5 * 60 * 1000);
+    const interval = setInterval(() => fetchData(), 5 * 60 * 1000);
     
     return () => clearInterval(interval);
   }, []);
+
+  const handleFiltersChange = (filters: { startDate?: string; endDate?: string; hours?: number }) => {
+    fetchData(filters);
+  };
 
   const formatLastUpdated = (dateString: string) => {
     try {
@@ -109,12 +114,39 @@ export default function Home() {
       <main className={`${styles.main} ${inter.className}`}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '20px' }}>
           <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>TP-Link Usage Dashboard</h1>
+          <Link 
+            href="/delete" 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#dc3545', 
+              color: 'white', 
+              textDecoration: 'none', 
+              borderRadius: '5px',
+              fontSize: '14px'
+            }}
+          >
+            Manage Devices
+          </Link>
         </div>
-        <div className={styles.center}></div>
-        <AreaChart csvData={data.csvData} />
-        Total usage: {Math.round(data.total / 1024 / 1024 / 1024)}GB
-        <br />
-        Last updated: {formatLastUpdated(data.lastUpdated)}
+        
+        <EnhancedAreaChart 
+          csvData={data.csvData} 
+          onFiltersChange={handleFiltersChange}
+        />
+        
+        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <p style={{ margin: '5px 0', fontSize: '18px', fontWeight: 'bold' }}>
+            Total usage: {Math.round(data.total / 1024 / 1024 / 1024)}GB
+          </p>
+          <p style={{ margin: '5px 0', fontSize: '14px', color: '#666' }}>
+            Last updated: {formatLastUpdated(data.lastUpdated)}
+          </p>
+          {data.devices && data.devices.length > 0 && (
+            <p style={{ margin: '5px 0', fontSize: '14px', color: '#666' }}>
+              Tracking {data.devices.length} devices
+            </p>
+          )}
+        </div>
       </main>
     </>
   );
