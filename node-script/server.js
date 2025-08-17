@@ -105,13 +105,28 @@ async function scrapeWebsite() {
       deviceNames[mac] = name;  // Store device name separately
     });
 
-    // Update devices file with new device names
+    // Update devices file only with new device names (never change existing ones)
     const existingDevices = readDevicesData();
-    const updatedDevices = { ...existingDevices, ...deviceNames };
-    saveDevicesData(updatedDevices);
+    const newDevices = {};
+    let hasNewDevices = false;
+    
+    Object.entries(deviceNames).forEach(([mac, name]) => {
+      // Only add if the MAC address doesn't exist in devices.json
+      if (!existingDevices[mac]) {
+        newDevices[mac] = name;
+        hasNewDevices = true;
+      }
+    });
+    
+    if (hasNewDevices) {
+      const updatedDevices = { ...existingDevices, ...newDevices };
+      saveDevicesData(updatedDevices);
+      console.log("New device names saved:", newDevices);
+    } else {
+      console.log("No new device names to save");
+    }
 
     console.log("Final result:", finalResult);
-    console.log("Device names updated:", deviceNames);
     
 
     console.log("Resetting statistics...");
