@@ -8,7 +8,8 @@
     "scrape": "node index.js",
     "setup": "./setup.sh",
     "server": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "migrate": "node migrate-data.js"
   },
   "engines": {
     "node": ">=16"

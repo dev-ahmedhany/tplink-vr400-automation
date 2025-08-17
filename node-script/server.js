@@ -94,11 +94,24 @@ async function scrapeWebsite() {
     
 
     const finalResult = {};
+    const deviceNames = {};
+    
     result.filter((i) => i.length === 5).filter((i) => i[4] !== '0').map((item) => {
-      finalResult[item[2]] = { usage: item[4], name: item[1] || "null" };
+      const mac = item[2];
+      const name = item[1] || "null";
+      const usage = item[4];
+      
+      finalResult[mac] = usage; // Store only usage value
+      deviceNames[mac] = name;  // Store device name separately
     });
 
+    // Update devices file with new device names
+    const existingDevices = readDevicesData();
+    const updatedDevices = { ...existingDevices, ...deviceNames };
+    saveDevicesData(updatedDevices);
+
     console.log("Final result:", finalResult);
+    console.log("Device names updated:", deviceNames);
     
 
     console.log("Resetting statistics...");
@@ -128,6 +141,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const DATA_DIR = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'usage-data.json');
+const DEVICES_FILE = path.join(DATA_DIR, 'devices.json');
 
 // Middleware
 app.use(cors());
@@ -153,6 +167,31 @@ function readUsageData() {
   }
 }
 
+// Helper function to read devices data
+function readDevicesData() {
+  try {
+    if (fs.existsSync(DEVICES_FILE)) {
+      const data = fs.readFileSync(DEVICES_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+    return {};
+  } catch (error) {
+    console.error('Error reading devices data:', error);
+    return {};
+  }
+}
+
+// Helper function to save devices data
+function saveDevicesData(devices) {
+  try {
+    const tempFile = DEVICES_FILE + '.tmp';
+    fs.writeFileSync(tempFile, JSON.stringify(devices, null, 2));
+    fs.renameSync(tempFile, DEVICES_FILE);
+  } catch (error) {
+    console.error('Error saving devices data:', error);
+  }
+}
+
 // Helper function to process usage data for frontend
 function processUsageData(rawData) {
   if (!rawData || rawData.length === 0) {
@@ -167,17 +206,21 @@ function processUsageData(rawData) {
   // Get the latest data entry for current stats
   const latestEntry = rawData[rawData.length - 1];
   
+  // Read device names from separate file
+  const deviceNames = readDevicesData();
+  
   // Collect all unique devices
   const devices = {};
   const totals = {};
   
   rawData.forEach(entry => {
     if (entry.data) {
-      Object.entries(entry.data).forEach(([mac, deviceInfo]) => {
-        if (deviceInfo.name !== "null" && deviceInfo.name) {
-          devices[mac] = deviceInfo.name;
+      Object.entries(entry.data).forEach(([mac, usage]) => {
+        const deviceName = deviceNames[mac] || "Unknown Device";
+        if (deviceName !== "null" && deviceName) {
+          devices[mac] = deviceName;
           if (!totals[mac]) {
-            totals[mac] = { usage: 0, name: deviceInfo.name };
+            totals[mac] = { usage: 0, name: deviceName };
           }
         }
       });
@@ -193,7 +236,7 @@ function processUsageData(rawData) {
     if (entry.data) {
       macList.forEach(mac => {
         if (entry.data[mac]) {
-          let usage = entry.data[mac].usage;
+          let usage = entry.data[mac]; // Now usage is directly the value
           const usageNum = parseFloat(usage);
           
           // Convert to bytes
@@ -244,7 +287,7 @@ function processUsageData(rawData) {
       
       macList.forEach(mac => {
         if (entry.data[mac]) {
-          let usage = entry.data[mac].usage;
+          let usage = entry.data[mac]; // Now usage is directly the value
           const usageNum = parseFloat(usage);
           
           if (usage.includes('K')) {
@@ -306,6 +349,17 @@ app.get('/api/usage/raw', (req, res) => {
   }
 });
 
+// Get devices data
+app.get('/api/devices', (req, res) => {
+  try {
+    const devices = readDevicesData();
+    res.json(devices);
+  } catch (error) {
+    console.error('Error reading devices data:', error);
+    res.status(500).json({ error: 'Failed to fetch devices data' });
+  }
+});
+
 // Trigger manual scraping
 app.get('/api/scrape', async (req, res) => {
   try {
@@ -315,21 +369,11 @@ app.get('/api/scrape', async (req, res) => {
     const rawData = await scrapeWebsite();
     const endTime = new Date().toISOString();
     
-    // Filter out devices with 0 usage to reduce file size
-    const filteredData = {};
-    Object.entries(rawData).forEach(([mac, deviceInfo]) => {
-      const usage = deviceInfo.usage;
-      // Keep only devices with non-zero usage
-      if (usage !== "0" && usage !== 0 && parseFloat(usage) > 0) {
-        filteredData[mac] = deviceInfo;
-      }
-    });
-    
     const result = {
       timestamp: Date.now().toString(),
       startTime,
       endTime,
-      data: filteredData
+      data: rawData
     };
     
     // Save to file with optimized file management
@@ -348,7 +392,7 @@ app.get('/api/scrape', async (req, res) => {
     fs.writeFileSync(tempFile, JSON.stringify(existingData, null, 2));
     fs.renameSync(tempFile, DATA_FILE);
     
-    const activeDevices = Object.keys(filteredData).length;
+    const activeDevices = Object.keys(rawData).length;
     const totalDevices = Object.keys(rawData).length;
     
     res.json({ 
@@ -356,7 +400,7 @@ app.get('/api/scrape', async (req, res) => {
       message: 'Scraping completed successfully',
       data: result,
       totalEntries: existingData.length,
-      devicesFiltered: `${activeDevices}/${totalDevices} devices with usage > 0`
+      devicesFiltered: `${activeDevices}/${totalDevices} devices`
     });
   } catch (error) {
     console.error('Error during manual scraping:', error);
@@ -465,21 +509,11 @@ if (scheduleEnabled) {
       const rawData = await scrapeWebsite();
       const endTime = new Date().toISOString();
       
-      // Filter out devices with 0 usage to reduce file size
-      const filteredData = {};
-      Object.entries(rawData).forEach(([mac, deviceInfo]) => {
-        const usage = deviceInfo.usage;
-        // Keep only devices with non-zero usage
-        if (usage !== "0" && usage !== 0 && parseFloat(usage) > 0) {
-          filteredData[mac] = deviceInfo;
-        }
-      });
-      
       const result = {
         timestamp: Date.now().toString(),
         startTime,
         endTime,
-        data: filteredData
+        data: rawData
       };
       
       // Save to file with optimized file management
@@ -498,11 +532,11 @@ if (scheduleEnabled) {
       fs.writeFileSync(tempFile, JSON.stringify(existingData, null, 2));
       fs.renameSync(tempFile, DATA_FILE);
       
-      const activeDevices = Object.keys(filteredData).length;
+      const activeDevices = Object.keys(rawData).length;
       const totalDevices = Object.keys(rawData).length;
       
       console.log(`✅ Scheduled scraping completed successfully (${existingData.length} total entries)`);
-      console.log(`📱 Active devices: ${activeDevices}/${totalDevices} with usage > 0`);
+      console.log(`📱 Active devices: ${activeDevices}/${totalDevices} devices`);
     } catch (error) {
       console.error('❌ Scheduled scraping failed:', error);
     }
@@ -517,6 +551,7 @@ app.listen(PORT, () => {
   console.log(`📊 API endpoints:`);
   console.log(`   GET  http://localhost:${PORT}/api/usage - Get processed usage data`);
   console.log(`   GET  http://localhost:${PORT}/api/usage/raw - Get raw usage data`);
+  console.log(`   GET  http://localhost:${PORT}/api/devices - Get device names`);
   console.log(`   POST http://localhost:${PORT}/api/scrape - Trigger manual scraping`);
   console.log(`   GET  http://localhost:${PORT}/api/status - Get server status`);
   console.log(`   GET  http://localhost:${PORT}/health - Health check`);
