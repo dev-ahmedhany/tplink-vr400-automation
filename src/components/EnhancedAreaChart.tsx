@@ -45,9 +45,9 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     // Parse the data
-    const data = d3.csvParse(csvData);
+    const rawData = d3.csvParse(csvData);
     
-    if (data.length === 0) {
+    if (rawData.length === 0) {
       svg.append("text")
         .attr("x", width / 2)
         .attr("y", height / 2)
@@ -58,40 +58,48 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       return;
     }
 
-    // Parse timestamps and convert to Date objects
-    data.forEach(d => {
-      d.timestamp = new Date(d.timestamp);
+    // Transform data to proper types
+    const data = rawData.map((d: any) => {
+      const point: any = {
+        timestamp: new Date(d.timestamp)
+      };
+      
+      // Convert all device columns to numbers
+      Object.keys(d).forEach(key => {
+        if (key !== 'timestamp') {
+          point[key] = (+d[key]) / 1000; // Convert to number and normalize
+        }
+      });
+      
+      return point;
     });
 
     // Get device columns (exclude timestamp)
-    const keys = data.columns.slice(1);
-
-    // Normalize data by dividing all numeric values by 1000 for better visualization
-    data.forEach(d => {
-      keys.forEach(key => {
-        d[key] = +d[key] / 1000; // Convert to number and divide by 1000
-      });
-    });
+    const keys = rawData.columns?.slice(1) || [];
 
     // Color palette
-    const color = d3.scaleOrdinal().domain(keys).range(d3.schemeSet2);
+    const color = d3.scaleOrdinal<string>()
+      .domain(keys)
+      .range(d3.schemeSet2);
 
     // Stack the data
-    const stackedData = d3.stack().keys(keys)(data);
+    const stackedData = d3.stack<any, string>()
+      .keys(keys)
+      (data);
 
     // Set up scales
-    const xExtent = d3.extent(data, d => d.timestamp);
+    const xExtent = d3.extent(data, (d: any) => d.timestamp) as [Date, Date];
     const x = d3.scaleTime()
       .domain(xExtent)
       .range([0, width]);
 
-    const maxValue = d3.max(stackedData, d => d3.max(d, d => d[1]));
+    const maxValue = d3.max(stackedData, (layer: any) => d3.max(layer, (d: any) => d[1])) || 0;
     const y = d3.scaleLinear()
-      .domain([0, maxValue])
+      .domain([0, maxValue as number])
       .range([height, 0]);
 
     // Add clipPath for brushing
-    const clip = svg
+    svg
       .append("defs")
       .append("svg:clipPath")
       .attr("id", "clip")
@@ -106,10 +114,10 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
 
     // Area generator
     const area = d3
-      .area()
-      .x(d => x(d.data.timestamp))
-      .y0(d => y(d[0]))
-      .y1(d => y(d[1]))
+      .area<any>()
+      .x((d: any) => x(d.data.timestamp))
+      .y0((d: any) => y(d[0]))
+      .y1((d: any) => y(d[1]))
       .curve(d3.curveMonotoneX);
 
     // Draw areas
@@ -117,8 +125,8 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       .selectAll("mylayers")
       .data(stackedData)
       .join("path")
-      .attr("class", d => "myArea " + d.key.replace(/[^a-zA-Z0-9]/g, "_"))
-      .style("fill", d => color(d.key))
+      .attr("class", (d: any) => "myArea " + d.key.replace(/[^a-zA-Z0-9]/g, "_"))
+      .style("fill", (d: any) => color(d.key) as string)
       .style("opacity", 0.8)
       .attr("d", area);
 
@@ -132,7 +140,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       xAxis.call(
         d3.axisBottom(x)
           .ticks(tickCount)
-          .tickFormat(d3.timeFormat("%m/%d %H:%M"))
+          .tickFormat(d3.timeFormat("%m/%d %H:%M") as any)
       )
       .selectAll("text")
       .style("text-anchor", "end")
@@ -170,7 +178,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
     const brush = d3
       .brushX()
       .extent([[0, 0], [width, height]])
-      .on("end", function(event) {
+      .on("end", function(event: any) {
         if (!event.selection) {
           // Double-click to reset
           x.domain(xExtent);
@@ -180,7 +188,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
 
         const [x0, x1] = event.selection.map(x.invert);
         x.domain([x0, x1]);
-        chartArea.select(".brush").call(brush.move, null);
+        (chartArea.select(".brush") as any).call(brush.move, null);
         updateChart();
       });
 
@@ -188,17 +196,19 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
 
     function updateChart() {
       // Update axis and areas
-      xAxis.transition().duration(750).call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat("%m/%d %H:%M")))
-        .selectAll("text")
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)");
+      xAxis.transition().duration(750).call(
+        d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat("%m/%d %H:%M") as any)
+      )
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-45)");
       
       chartArea.selectAll("path")
         .transition()
         .duration(750)
-        .attr("d", area);
+        .attr("d", (d: any) => area(d) || "");
     }
 
     // Tooltip
@@ -219,20 +229,20 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       .data(data)
       .join("rect")
       .attr("class", "mouse-area")
-      .attr("x", d => x(d.timestamp) - 5)
+      .attr("x", (d: any) => x(d.timestamp) - 5)
       .attr("y", 0)
       .attr("width", 10)
       .attr("height", height)
       .style("fill", "transparent")
-      .on("mouseover", function(event, d) {
+      .on("mouseover", function(event: any, d: any) {
         tooltip.style("visibility", "visible");
         const tooltipContent = [
           `<strong>Time:</strong> ${d3.timeFormat("%Y-%m-%d %H:%M")(d.timestamp)}`,
-          ...keys.map(key => `<strong>${key}:</strong> ${(d[key] * 1000).toFixed(0)} MB/min`)
+          ...keys.map((key: string) => `<strong>${key}:</strong> ${(d[key] * 1000).toFixed(0)} MB/min`)
         ].join("<br>");
         tooltip.html(tooltipContent);
       })
-      .on("mousemove", function(event) {
+      .on("mousemove", function(event: any) {
         tooltip
           .style("top", (event.pageY - 10) + "px")
           .style("left", (event.pageX + 10) + "px");
@@ -242,7 +252,7 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       });
 
     // Legend with hover effects
-    const highlight = function(event, d) {
+    const highlight = function(event: any, d: string) {
       d3.selectAll(".myArea").style("opacity", 0.1);
       d3.select(`.myArea.${d.replace(/[^a-zA-Z0-9]/g, "_")}`).style("opacity", 1);
     };
@@ -261,10 +271,10 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       .data(keys)
       .join("rect")
       .attr("x", 0)
-      .attr("y", (d, i) => i * (legendSize + 5))
+      .attr("y", (d: string, i: number) => i * (legendSize + 5))
       .attr("width", legendSize)
       .attr("height", legendSize)
-      .style("fill", d => color(d))
+      .style("fill", (d: string) => color(d) as string)
       .style("cursor", "pointer")
       .on("mouseover", highlight)
       .on("mouseleave", noHighlight);
@@ -273,12 +283,12 @@ const EnhancedAreaChart: React.FC<EnhancedAreaChartProps> = ({ csvData, onFilter
       .data(keys)
       .join("text")
       .attr("x", legendSize + 5)
-      .attr("y", (d, i) => i * (legendSize + 5) + legendSize / 2)
-      .style("fill", d => color(d))
+      .attr("y", (d: string, i: number) => i * (legendSize + 5) + legendSize / 2)
+      .style("fill", (d: string) => color(d) as string)
       .style("font-size", "12px")
       .style("alignment-baseline", "middle")
       .style("cursor", "pointer")
-      .text(d => d)
+      .text((d: string) => d)
       .on("mouseover", highlight)
       .on("mouseleave", noHighlight);
 
