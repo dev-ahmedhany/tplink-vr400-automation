@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import { Inter } from "next/font/google";
 import { useState, useEffect } from "react";
 import styles from "@/styles/Home.module.css";
@@ -107,6 +108,22 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '20px' }}>
+          <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>TP-Link Usage Dashboard</h1>
+          <Link 
+            href="/delete" 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#dc3545', 
+              color: 'white', 
+              textDecoration: 'none', 
+              borderRadius: '5px',
+              fontSize: '14px'
+            }}
+          >
+            Manage Devices
+          </Link>
+        </div>
         <div className={styles.center}></div>
         <AreaChart csvData={data.csvData} />
         Total usage: {Math.round(data.total / 1024 / 1024 / 1024)}GB

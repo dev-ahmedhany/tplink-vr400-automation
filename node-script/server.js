@@ -375,6 +375,78 @@ app.get('/api/devices', (req, res) => {
   }
 });
 
+// Delete device by MAC address (removes from both usage data and device names)
+app.delete('/api/devices/:mac', (req, res) => {
+  try {
+    const macToDelete = req.params.mac;
+    
+    if (!macToDelete) {
+      return res.status(400).json({ error: 'MAC address is required' });
+    }
+    
+    console.log(`Deleting device with MAC: ${macToDelete}`);
+    
+    // Read current data
+    const usageData = readUsageData();
+    const devicesData = readDevicesData();
+    
+    // Check if device exists
+    const deviceExists = devicesData[macToDelete] || 
+                        usageData.some(entry => entry.data && entry.data[macToDelete]);
+    
+    if (!deviceExists) {
+      return res.status(404).json({ error: 'Device not found' });
+    }
+    
+    const deviceName = devicesData[macToDelete] || 'Unknown Device';
+    
+    // Remove from usage data
+    let totalEntriesAffected = 0;
+    const cleanedUsageData = usageData.map(entry => {
+      if (entry.data && entry.data[macToDelete]) {
+        totalEntriesAffected++;
+        const { [macToDelete]: removed, ...remainingData } = entry.data;
+        return { ...entry, data: remainingData };
+      }
+      return entry;
+    });
+    
+    // Remove from devices data
+    const { [macToDelete]: removedDevice, ...remainingDevices } = devicesData;
+    
+    // Save updated data atomically
+    const tempUsageFile = DATA_FILE + '.tmp';
+    fs.writeFileSync(tempUsageFile, JSON.stringify(cleanedUsageData, null, 2));
+    fs.renameSync(tempUsageFile, DATA_FILE);
+    
+    const tempDevicesFile = DEVICES_FILE + '.tmp';
+    fs.writeFileSync(tempDevicesFile, JSON.stringify(remainingDevices, null, 2));
+    fs.renameSync(tempDevicesFile, DEVICES_FILE);
+    
+    console.log(`✅ Device deleted: ${deviceName} (${macToDelete})`);
+    console.log(`   Removed from ${totalEntriesAffected} usage entries`);
+    console.log(`   Remaining devices: ${Object.keys(remainingDevices).length}`);
+    
+    res.json({
+      success: true,
+      message: 'Device deleted successfully',
+      deletedDevice: {
+        mac: macToDelete,
+        name: deviceName
+      },
+      entriesAffected: totalEntriesAffected,
+      remainingDevices: Object.keys(remainingDevices).length
+    });
+    
+  } catch (error) {
+    console.error('Error deleting device:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to delete device' 
+    });
+  }
+});
+
 // Trigger manual scraping
 app.get('/api/scrape', async (req, res) => {
   try {
@@ -564,12 +636,13 @@ if (scheduleEnabled) {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 API endpoints:`);
-  console.log(`   GET  http://localhost:${PORT}/api/usage - Get processed usage data`);
-  console.log(`   GET  http://localhost:${PORT}/api/usage/raw - Get raw usage data`);
-  console.log(`   GET  http://localhost:${PORT}/api/devices - Get device names`);
-  console.log(`   POST http://localhost:${PORT}/api/scrape - Trigger manual scraping`);
-  console.log(`   GET  http://localhost:${PORT}/api/status - Get server status`);
-  console.log(`   GET  http://localhost:${PORT}/health - Health check`);
+  console.log(`   GET    http://localhost:${PORT}/api/usage - Get processed usage data`);
+  console.log(`   GET    http://localhost:${PORT}/api/usage/raw - Get raw usage data`);
+  console.log(`   GET    http://localhost:${PORT}/api/devices - Get device names`);
+  console.log(`   DELETE http://localhost:${PORT}/api/devices/:mac - Delete device by MAC address`);
+  console.log(`   GET    http://localhost:${PORT}/api/scrape - Trigger manual scraping`);
+  console.log(`   GET    http://localhost:${PORT}/api/status - Get server status`);
+  console.log(`   GET    http://localhost:${PORT}/health - Health check`);
   
   const maxEntries = parseInt(process.env.MAX_ENTRIES) || 4320; // 30 days of 10-min intervals
   const scrapeInterval = process.env.SCRAPE_INTERVAL || '*/10 * * * *';

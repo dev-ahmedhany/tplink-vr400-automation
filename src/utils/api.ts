@@ -2,6 +2,7 @@
 
 // Use environment variable or default to current host with port 3001
 const getApiBaseUrl = () => {
+  // return 'http://192.168.1.200:3001/api';
   if (typeof window !== 'undefined') {
     // Client-side: use current host with port 3001
     const protocol = window.location.protocol;
@@ -28,8 +29,23 @@ export interface ProcessedUsageData {
     mac: string;
     name: string;
     usage: number;
-    usageGB: number;
+    usageMB: number;
   }>;
+}
+
+export interface DevicesData {
+  [mac: string]: string;
+}
+
+export interface DeleteDeviceResponse {
+  success: boolean;
+  message: string;
+  deletedDevice: {
+    mac: string;
+    name: string;
+  };
+  entriesAffected: number;
+  remainingDevices: number;
 }
 
 export interface ServerStatus {
@@ -117,6 +133,42 @@ export async function healthCheck(): Promise<{ status: string; timestamp: string
     return await response.json();
   } catch (error) {
     console.error('Error performing health check:', error);
+    throw error;
+  }
+}
+
+// Get devices data
+export async function getDevices(): Promise<DevicesData> {
+  try {
+    const API_BASE_URL = getApiBaseUrl();
+    const response = await fetch(`${API_BASE_URL}/devices`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching devices data:', error);
+    throw error;
+  }
+}
+
+// Delete device by MAC address
+export async function deleteDevice(mac: string): Promise<DeleteDeviceResponse> {
+  try {
+    const API_BASE_URL = getApiBaseUrl();
+    const response = await fetch(`${API_BASE_URL}/devices/${encodeURIComponent(mac)}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting device:', error);
     throw error;
   }
 }
