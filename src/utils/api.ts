@@ -2,7 +2,7 @@
 
 // Use environment variable or default to current host with port 3001
 const getApiBaseUrl = () => {
-  // return 'http://192.168.1.200:3001/api';
+  return 'http://192.168.1.200:3001/api';
   if (typeof window !== 'undefined') {
     // Client-side: use current host with port 3001
     const protocol = window.location.protocol;
@@ -55,6 +55,14 @@ export interface ChangeMacResponse {
   newMac: string;
   deviceName: string;
   entriesAffected: number;
+}
+
+export interface DeleteDataBeforeDateResponse {
+  success: boolean;
+  message: string;
+  deletedEntries: number;
+  remainingEntries: number;
+  cutoffDate: string;
 }
 
 export interface ServerStatus {
@@ -258,6 +266,27 @@ export async function changeMacAddress(oldMac: string, newMac: string, deviceNam
     return await response.json();
   } catch (error) {
     console.error('Error changing MAC address:', error);
+    throw error;
+  }
+}
+
+// Delete all data before a specific date and time
+export async function deleteDataBeforeDate(datetime: string): Promise<DeleteDataBeforeDateResponse> {
+  try {
+    const API_BASE_URL = getApiBaseUrl();
+    const response = await fetch(`${API_BASE_URL}/data/before/${encodeURIComponent(datetime)}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting data before date:', error);
     throw error;
   }
 }

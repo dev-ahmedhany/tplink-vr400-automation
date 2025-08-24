@@ -2,7 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import styles from "@/styles/Home.module.css";
-import { getDevices, getUsageData, deleteDevice, changeMacAddress, DevicesData, ProcessedUsageData } from "@/utils/api";
+import { getDevices, getUsageData, deleteDevice, changeMacAddress, deleteDataBeforeDate, DevicesData, ProcessedUsageData, DeleteDataBeforeDateResponse } from "@/utils/api";
 
 interface DeviceWithUsage {
   mac: string;
@@ -21,6 +21,12 @@ export default function DeleteDevices() {
   const [showChangeMacModal, setShowChangeMacModal] = useState<string | null>(null);
   const [newMacAddress, setNewMacAddress] = useState('');
   const [newDeviceName, setNewDeviceName] = useState('');
+  
+  // States for date-based deletion
+  const [showDeleteDataModal, setShowDeleteDataModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
+  const [deletingData, setDeletingData] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -149,6 +155,73 @@ export default function DeleteDevices() {
     setError(null);
   };
 
+  const handleDeleteDataBeforeDate = async () => {
+    if (!selectedDate || !selectedTime) {
+      setError('Please select both date and time');
+      return;
+    }
+    
+    // Combine date and time into ISO format
+    const datetime = `${selectedDate}T${selectedTime}:00.000Z`;
+    const cutoffDate = new Date(datetime);
+    
+    if (isNaN(cutoffDate.getTime())) {
+      setError('Invalid date and time selection');
+      return;
+    }
+    
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ALL usage data before ${cutoffDate.toLocaleString()}?\n\nThis will permanently remove:\n• All usage history entries before this date and time\n• This action cannot be undone\n\nClick OK to proceed with deletion.`
+    );
+    
+    if (!confirmDelete) return;
+    
+    try {
+      setDeletingData(true);
+      setError(null);
+      setSuccessMessage(null);
+      
+      const result = await deleteDataBeforeDate(datetime);
+      
+      if (result.success) {
+        setSuccessMessage(
+          `Successfully deleted ${result.deletedEntries} entries before ${new Date(result.cutoffDate).toLocaleString()}. ` +
+          `${result.remainingEntries} entries remaining.`
+        );
+        
+        // Close modal and refresh data
+        setShowDeleteDataModal(false);
+        setSelectedDate('');
+        setSelectedTime('');
+        await fetchData();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete data');
+      console.error('Error deleting data before date:', err);
+    } finally {
+      setDeletingData(false);
+    }
+  };
+
+  const openDeleteDataModal = () => {
+    // Set default values to 30 days ago
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    setSelectedDate(thirtyDaysAgo.toISOString().split('T')[0]);
+    setSelectedTime('00:00');
+    setShowDeleteDataModal(true);
+    setError(null);
+    setSuccessMessage(null);
+  };
+
+  const closeDeleteDataModal = () => {
+    setShowDeleteDataModal(false);
+    setSelectedDate('');
+    setSelectedTime('');
+    setError(null);
+  };
+
   const formatUsage = (usageMB: number) => {
     if (usageMB >= 1024) {
       return `${(usageMB / 1024).toFixed(2)} GB`;
@@ -160,8 +233,8 @@ export default function DeleteDevices() {
     return (
       <>
         <Head>
-          <title>Manage Devices - TP-Link Usage Dashboard</title>
-          <meta name="description" content="Manage devices in TP-Link VR400 Router Usage Dashboard - delete devices or change MAC addresses" />
+          <title>Manage Devices & Data - TP-Link Usage Dashboard</title>
+          <meta name="description" content="Manage devices and data in TP-Link VR400 Router Usage Dashboard - delete devices, change MAC addresses, or clean up old usage data" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
@@ -185,7 +258,7 @@ export default function DeleteDevices() {
       <main className={styles.main}>
         <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-            <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>Manage Devices</h1>
+            <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>Manage Devices & Data</h1>
             <Link 
               href="/" 
               style={{ 
@@ -199,6 +272,36 @@ export default function DeleteDevices() {
             >
               ← Back to Dashboard
             </Link>
+          </div>
+          
+          {/* Data Management Section */}
+          <div style={{ 
+            marginBottom: '40px',
+            padding: '20px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '8px',
+            border: '1px solid #dee2e6'
+          }}>
+            <h2 style={{ margin: '0 0 15px 0', fontSize: '1.4rem', color: '#333' }}>Data Management</h2>
+            <p style={{ margin: '0 0 15px 0', color: '#666' }}>
+              Clean up old usage data to free up storage space and improve performance.
+            </p>
+            <button
+              onClick={openDeleteDataModal}
+              disabled={deletingData}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: deletingData ? '#ccc' : '#dc3545',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: deletingData ? 'not-allowed' : 'pointer',
+                fontSize: '16px',
+                fontWeight: 'bold'
+              }}
+            >
+              {deletingData ? 'Deleting Data...' : '🗑️ Delete Old Data'}
+            </button>
           </div>
           
           {error && (
@@ -247,6 +350,7 @@ export default function DeleteDevices() {
             </div>
           ) : (
             <>
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '1.4rem', color: '#333' }}>Device Management</h3>
               <div style={{ marginBottom: '20px', color: '#666' }}>
                 <p>⚠️ <strong>Device Management:</strong></p>
                 <ul style={{ marginLeft: '20px', marginTop: '5px' }}>
@@ -478,6 +582,132 @@ export default function DeleteDevices() {
                   }}
                 >
                   {changingMac === showChangeMacModal ? 'Changing...' : 'Change MAC Address'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Delete Data Before Date Modal */}
+        {showDeleteDataModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '30px',
+              maxWidth: '500px',
+              width: '90%',
+              maxHeight: '80%',
+              overflow: 'auto'
+            }}>
+              <h2 style={{ margin: '0 0 20px 0', fontSize: '1.5rem', color: '#333' }}>
+                Delete Old Usage Data
+              </h2>
+              
+              <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#fff3cd', borderRadius: '5px', border: '1px solid #ffeaa7' }}>
+                <p style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#856404' }}>
+                  ⚠️ Warning: Data Deletion
+                </p>
+                <ul style={{ margin: 0, paddingLeft: '20px', color: '#856404', fontSize: '14px' }}>
+                  <li>This will permanently delete all usage history before the selected date and time</li>
+                  <li>All device usage entries will be affected, not just specific devices</li>
+                  <li>This action cannot be undone</li>
+                  <li>Consider exporting data before deletion if needed</li>
+                </ul>
+              </div>
+              
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>
+                  Select Date *
+                </label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '5px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '30px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>
+                  Select Time *
+                </label>
+                <input
+                  type="time"
+                  value={selectedTime}
+                  onChange={(e) => setSelectedTime(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '5px',
+                    fontSize: '14px'
+                  }}
+                />
+                <small style={{ color: '#666', fontSize: '12px' }}>
+                  All data before this date and time will be permanently deleted
+                </small>
+              </div>
+              
+              {selectedDate && selectedTime && (
+                <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#e7f3ff', borderRadius: '5px', border: '1px solid #bee5eb' }}>
+                  <p style={{ margin: '0', fontWeight: 'bold', color: '#004085' }}>
+                    📅 Deletion Preview:
+                  </p>
+                  <p style={{ margin: '5px 0 0 0', color: '#004085', fontSize: '14px' }}>
+                    All usage data before <strong>{new Date(`${selectedDate}T${selectedTime}:00.000Z`).toLocaleString()}</strong> will be deleted.
+                  </p>
+                </div>
+              )}
+              
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={closeDeleteDataModal}
+                  disabled={deletingData}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: deletingData ? 'not-allowed' : 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteDataBeforeDate}
+                  disabled={deletingData || !selectedDate || !selectedTime}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: deletingData || !selectedDate || !selectedTime ? '#ccc' : '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: deletingData || !selectedDate || !selectedTime ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {deletingData ? 'Deleting...' : '🗑️ Delete Data'}
                 </button>
               </div>
             </div>

@@ -708,6 +708,89 @@ app.delete('/api/devices/:mac', (req, res) => {
   }
 });
 
+// Delete all data before a specific date and time
+app.delete('/api/data/before/:datetime', (req, res) => {
+  try {
+    const { datetime } = req.params;
+    
+    if (!datetime) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Date and time parameter is required' 
+      });
+    }
+    
+    // Parse and validate the datetime
+    const cutoffDate = new Date(datetime);
+    if (isNaN(cutoffDate.getTime())) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid date and time format. Please use ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)' 
+      });
+    }
+    
+    console.log(`Deleting all usage data before: ${cutoffDate.toISOString()}`);
+    
+    // Read current usage data
+    const usageData = readUsageData();
+    const originalCount = usageData.length;
+    
+    if (originalCount === 0) {
+      return res.json({
+        success: true,
+        message: 'No data to delete',
+        deletedEntries: 0,
+        remainingEntries: 0,
+        cutoffDate: cutoffDate.toISOString()
+      });
+    }
+    
+    // Filter out entries before the cutoff date
+    // Check both endTime and timestamp fields for compatibility
+    const filteredData = usageData.filter(entry => {
+      const entryDate = new Date(entry.endTime || entry.timestamp);
+      return entryDate >= cutoffDate;
+    });
+    
+    const deletedCount = originalCount - filteredData.length;
+    
+    if (deletedCount === 0) {
+      return res.json({
+        success: true,
+        message: 'No entries found before the specified date',
+        deletedEntries: 0,
+        remainingEntries: originalCount,
+        cutoffDate: cutoffDate.toISOString()
+      });
+    }
+    
+    // Save updated data atomically
+    const tempUsageFile = DATA_FILE + '.tmp';
+    fs.writeFileSync(tempUsageFile, JSON.stringify(filteredData, null, 2));
+    fs.renameSync(tempUsageFile, DATA_FILE);
+    
+    console.log(`✅ Data cleanup completed:`);
+    console.log(`   Deleted entries: ${deletedCount}`);
+    console.log(`   Remaining entries: ${filteredData.length}`);
+    console.log(`   Cutoff date: ${cutoffDate.toISOString()}`);
+    
+    res.json({
+      success: true,
+      message: `Successfully deleted ${deletedCount} entries before ${cutoffDate.toISOString()}`,
+      deletedEntries: deletedCount,
+      remainingEntries: filteredData.length,
+      cutoffDate: cutoffDate.toISOString()
+    });
+    
+  } catch (error) {
+    console.error('Error deleting data before date:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to delete data before specified date' 
+    });
+  }
+});
+
 // Trigger manual scraping
 app.get('/api/scrape', async (req, res) => {
   try {
