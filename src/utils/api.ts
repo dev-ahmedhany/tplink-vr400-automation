@@ -2,7 +2,6 @@
 
 // Use environment variable or default to current host with port 3001
 const getApiBaseUrl = () => {
-  return 'http://192.168.1.200:3001/api';
   if (typeof window !== 'undefined') {
     // Client-side: use current host with port 3001
     const protocol = window.location.protocol;
