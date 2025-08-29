@@ -3,10 +3,7 @@
 // Use environment variable or default to current host with port 3001
 const getApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
-    // Client-side: use current host with port 3001
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    return `${protocol}//${hostname}:3001/api`;
+    return `/api`;
   } else {
     // Server-side: use localhost (for build-time if needed)
     return 'http://localhost:3001/api';
