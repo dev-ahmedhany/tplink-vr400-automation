@@ -1,19 +1,29 @@
-# tplink-usage
-
-This is a [tplink-usage.vercel.app](https://tplink-usage.vercel.app/)  project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
 # TP-Link VR400 Router Usage Automation
 
-A complete solution for monitoring and visualizing TP-Link VR400 router usage data. This project includes a Node.js scraper, Express.js API server, and Next.js frontend dashboard.
+A complete solution for monitoring and visualizing TP-Link VR400 router usage data. This project includes a Node.js scraper, Express.js API server, and Next.js frontend dashboard with real-time analytics and beautiful data visualizations.
 
 ## 🌟 Features
 
-- **Automated Scraping**: Periodically scrapes router usage data using Puppeteer
-- **REST API**: Express.js server provides endpoints for data access
-- **Dashboard**: Next.js frontend with interactive charts
-- **Raspberry Pi Ready**: Complete deployment script for Raspberry Pi
-- **Real-time Updates**: Automatic data refresh and live dashboard
+### Frontend Dashboard
+- **Interactive Charts**: Real-time usage visualization with D3.js powered charts
+- **Device Analytics**: Individual device usage tracking and ranking
+- **System Monitoring**: Live server statistics and health monitoring
+- **Dark Mode UI**: Modern dark theme with gradient accents
+- **Responsive Design**: Optimized for desktop and mobile viewing
+- **Auto-refresh**: Dashboard updates every 5 minutes automatically
+
+### Backend Services  
+- **Automated Scraping**: Hourly scraping of router usage data using Puppeteer
+- **REST API**: Express.js server with comprehensive endpoints
+- **Data Processing**: Intelligent data aggregation and filtering
+- **Real-time Updates**: Live data streaming and caching
+- **Error Handling**: Robust error handling and retry mechanisms
+
+### Deployment & Infrastructure
+- **Raspberry Pi Ready**: One-click deployment script for Raspberry Pi
 - **Process Management**: PM2 integration for production deployment
+- **Health Monitoring**: Built-in health checks and status endpoints
+- **Data Persistence**: Local JSON storage with automatic cleanup
 
 ## 🚀 Quick Start (Raspberry Pi)
 
@@ -40,17 +50,35 @@ A complete solution for monitoring and visualizing TP-Link VR400 router usage da
 ## 📁 Project Structure
 
 ```
-├── src/                    # Next.js frontend
-│   ├── components/        # React components
-│   ├── pages/            # Next.js pages
-│   ├── styles/           # CSS styles
-│   └── utils/            # API utilities
-├── node-script/           # Backend server and scraper
-│   ├── server.js         # Express.js API server
-│   ├── index.js          # Scraping functionality
-│   └── package.json      # Backend dependencies
-├── functions/             # Legacy Firebase functions
-└── deploy-raspberry-pi.sh # Automated deployment script
+tplink-vr400-automation/
+├── src/                           # Next.js Frontend
+│   ├── components/               # React Components
+│   │   ├── EnhancedAreaChart.tsx # Interactive charts with D3.js
+│   │   ├── SystemMonitor.tsx     # Real-time system monitoring
+│   │   └── StackedArea.js        # Data visualization components
+│   ├── pages/                    # Next.js Pages
+│   │   ├── index.tsx             # Main dashboard page
+│   │   ├── delete.tsx            # Data management page
+│   │   ├── _app.tsx              # App configuration
+│   │   └── _document.tsx         # Document structure
+│   ├── styles/                   # Styling
+│   │   ├── globals.css           # Global styles
+│   │   └── Home.module.css       # Component-specific styles
+│   └── utils/                    # Utilities
+│       ├── api.ts                # API client functions
+│       └── getFirestoreAdmin.js  # Firebase admin setup
+├── node-script/                  # Backend Services
+│   ├── server.js                 # Express.js API server (main)
+│   ├── index.js                  # Router scraping logic
+│   ├── ecosystem.config.js       # PM2 configuration
+│   ├── migrate-data.js           # Data migration utility
+│   ├── data/                     # Local data storage
+│   └── package.json              # Backend dependencies
+├── public/                       # Static assets
+├── deploy-raspberry-pi.sh        # Automated Pi deployment
+├── package.json                  # Frontend dependencies
+├── tsconfig.json                 # TypeScript configuration
+└── next.config.js                # Next.js configuration
 ```
 
 ## 🔧 Manual Setup
@@ -75,11 +103,22 @@ npm start
 
 ## 🌐 API Endpoints
 
-- `GET /api/usage` - Get processed usage data for frontend
-- `GET /api/usage/raw` - Get raw scraping data
-- `POST /api/scrape` - Trigger manual scraping
-- `GET /api/status` - Get server status and statistics
-- `GET /health` - Health check endpoint
+### Usage Data
+- `GET /api/usage` - Get processed usage data optimized for frontend
+- `GET /api/usage/raw` - Get raw scraping data from storage
+- `GET /api/usage?hours=24` - Get usage data for specific time period
+- `GET /api/usage?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` - Get usage data for date range
+
+### System Control
+- `POST /api/scrape` - Trigger manual scraping operation
+- `GET /api/status` - Get server status, uptime, and statistics
+- `GET /health` - Health check endpoint for monitoring
+- `GET /api/system/stats` - Detailed system metrics and performance
+
+### Data Management
+- `DELETE /api/data/clear` - Clear all stored usage data
+- `GET /api/data/export` - Export data in various formats
+- `POST /api/data/import` - Import historical data
 
 ## ⚙️ Configuration
 
@@ -105,10 +144,23 @@ The system includes automatic scraping every hour using node-cron. Data is store
 
 ## 📊 Dashboard Features
 
-- **Interactive Charts**: Real-time usage visualization
-- **Device Breakdown**: Individual device usage tracking
-- **Historical Data**: Time-series usage patterns
-- **Responsive Design**: Works on desktop and mobile
+### Data Visualization
+- **Enhanced Area Charts**: Interactive D3.js powered charts with zoom and pan
+- **Device Rankings**: Top devices and users with usage statistics
+- **Time Series Analysis**: Historical data trends and patterns
+- **Real-time Metrics**: Live usage updates and system monitoring
+
+### User Experience
+- **Modern Dark Theme**: Sleek gradient-based design
+- **Responsive Layout**: Optimized for all screen sizes
+- **Loading States**: Smooth transitions and progress indicators
+- **Error Handling**: User-friendly error messages and recovery
+
+### Analytics Features
+- **Usage Aggregation**: Total and per-device data breakdown
+- **Time Filtering**: Custom date ranges and period selection
+- **Device Grouping**: Automatic user grouping based on device names
+- **Export Options**: Data export in multiple formats
 
 ## 🔧 Process Management
 
@@ -159,40 +211,123 @@ Once deployed on Raspberry Pi, the dashboard is accessible from any device on yo
 - Consider setting up basic authentication for the dashboard
 - Use firewall rules to restrict access if needed
 
-## 📋 Requirements
+## 📋 System Requirements
 
-- Node.js 16+
-- Raspberry Pi OS (or any Linux distribution)
+### Hardware
+- Raspberry Pi 3B+ or higher (recommended: Pi 4 with 4GB RAM)
+- SD card with at least 16GB storage
+- Stable network connection to router
 - TP-Link VR400 router with web interface access
+
+### Software
+- Node.js 16+ (automatically installed by deployment script)
+- Raspberry Pi OS Lite or Desktop
+- Chrome/Chromium browser dependencies (auto-installed)
+- PM2 process manager (auto-installed)
+
+### Network
+- Router admin access (username/password)
 - Network connectivity between Pi and router
+- Optional: Static IP assignment for Raspberry Pi
+
+## 🔧 Development
+
+### Local Development Setup
+
+1. **Frontend Development**
+   ```bash
+   npm install
+   npm run dev
+   # Dashboard available at http://localhost:3000
+   ```
+
+2. **Backend Development**
+   ```bash
+   cd node-script
+   npm install
+   cp .env.example .env
+   # Edit .env with your configuration
+   npm run dev
+   # API server available at http://localhost:3001
+   ```
+
+### Building for Production
+
+```bash
+# Build frontend
+npm run build
+npm start
+
+# Backend is production-ready by default
+cd node-script
+npm start
+```
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| Puppeteer fails to launch | Install Chrome dependencies: `sudo apt-get install -y chromium-browser` |
+| Permission denied on setup | Ensure script is executable: `chmod +x deploy-raspberry-pi.sh` |
+| Dashboard shows no data | Check backend logs: `pm2 logs tplink-scraper` |
+| Router connection fails | Verify IP address, credentials, and network connectivity |
+| High memory usage | Restart services: `pm2 restart tplink-scraper` |
+
+### Debugging Commands
+
+```bash
+# Check service status
+pm2 status
+
+# View real-time logs
+pm2 logs tplink-scraper --lines 50
+
+# Monitor system resources
+pm2 monit
+
+# Test router connectivity
+curl http://192.168.1.1 # Replace with your router IP
+```
+
+## 📈 Performance Optimization
+
+- **Data Retention**: Automatically keeps last 100 entries to prevent storage bloat
+- **Caching**: API responses are cached for improved performance
+- **Error Recovery**: Automatic retry logic for failed scraping attempts
+- **Memory Management**: Puppeteer instances are properly closed after each scrape
 
 ## 🤝 Contributing
 
-Feel free to submit issues and pull requests to improve the project.
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Guidelines
+- Follow existing code style and patterns
+- Add comments for complex logic
+- Test on Raspberry Pi before submitting
+- Update documentation for new features
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## 🙏 Acknowledgments
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+- [Puppeteer](https://pptr.dev/) for web scraping capabilities
+- [Next.js](https://nextjs.org/) for the frontend framework
+- [D3.js](https://d3js.org/) for data visualization
+- [Express.js](https://expressjs.com/) for the API server
+- [PM2](https://pm2.keymetrics.io/) for process management
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+<div align="center">
+  <strong>🌐 Network Dashboard • 📊 Real-time Analytics • 🚀 Production Ready</strong>
+</div>
